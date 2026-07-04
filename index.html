@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="fil">
+<html lang="ceb">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Junkshop POS</title>
-<meta name="description" content="POS para sa junkshop — timbang, presyo, resibo, at ulat.">
+<meta name="description" content="POS para sa junkshop — timbang, presyo, gastos, resibo, ug report.">
 <meta name="theme-color" content="#E8930C">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -41,7 +41,7 @@
   @media(min-width:700px){
     .wrap{max-width:700px}
     .mat-grid{grid-template-columns:repeat(4,1fr)}
-    .rep-grid{grid-template-columns:repeat(3,1fr)}
+    .rep-grid{grid-template-columns:repeat(4,1fr)}
   }
   @media(min-width:980px){
     .wrap{max-width:1000px}
@@ -74,6 +74,7 @@
 
   .card{background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden}
   .ticket-row{display:flex;align-items:center;gap:8px;padding:10px 12px;border-bottom:1px dashed var(--line)}
+  .ticket-row:last-of-type{border-bottom:none}
   .ticket-row .info{flex:1;min-width:0}
   .ticket-row .nm{font-size:15px}
   .ticket-row .sub{font-size:12px;color:var(--muted)}
@@ -106,7 +107,13 @@
   .confirm-yes{border:none;background:var(--rust);color:#fff;font-weight:700}
   .confirm-no{border:1px solid var(--line);background:var(--card)}
 
-  /* Talaan / Ulat */
+  /* Gastos */
+  .cat-row{display:flex;flex-wrap:wrap;gap:6px}
+  .cat-chip{padding:6px 12px;border-radius:999px;border:2px solid var(--line);background:var(--card);font-size:13px;cursor:pointer;color:var(--muted)}
+  .cat-chip.on{border-color:var(--amber);background:#FDF3E3;color:var(--ink)}
+  #g-desc,#g-amt{width:100%;padding:9px 10px;border-radius:8px;border:1px solid var(--line);background:var(--bg);font-size:14px;margin-top:8px;outline:none;color:var(--ink)}
+
+  /* Rekord / Report */
   .day-title{font-size:15px;padding:0 4px 6px}
   .stat{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:8px 10px}
   .stat .lb{font-size:11px;color:var(--muted);text-transform:uppercase}
@@ -135,11 +142,11 @@
 
   /* nav + toast */
   nav{position:fixed;bottom:0;left:0;right:0;background:var(--card);border-top:1px solid var(--line);z-index:40;padding-bottom:env(safe-area-inset-bottom)}
-  nav .inner{max-width:640px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr)}
+  nav .inner{max-width:640px;margin:0 auto;display:grid;grid-template-columns:repeat(5,1fr)}
   nav button{padding:9px 0 11px;background:none;border:none;cursor:pointer;color:var(--muted)}
   nav button.on{color:var(--amber-dark)}
   nav .ic{font-size:19px;line-height:1}
-  nav .lb{font-size:12px;margin-top:2px}
+  nav .lb{font-size:11px;margin-top:2px}
   #toast{position:fixed;bottom:84px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 18px;border-radius:999px;font-size:15px;white-space:nowrap;box-shadow:0 4px 14px rgba(0,0,0,.25);z-index:50;display:none}
   #toast.bad{background:var(--rust)}
 
@@ -195,16 +202,18 @@ const DEFAULT_MATERIALS = [
   { id:"bote", name:"Bote", buy:1.5, sell:2.5 },
   { id:"baterya", name:"Baterya", buy:35, sell:42 },
 ];
+const GASTO_CATS = ["Kuryente","Tubig","Sweldo","Plete","Pagkaon","Gasolina","Uban"];
 const DEFAULT_SETTINGS = { shopName:"JUNKSHOP", shopInfo:"", autoPrint:false };
 const KEY = "junkshop:data";
 
-let D = { materials: DEFAULT_MATERIALS.map(m=>({...m})), transactions: [], settings: {...DEFAULT_SETTINGS} };
+let D = { materials: DEFAULT_MATERIALS.map(m=>({...m})), transactions: [], expenses: [], settings: {...DEFAULT_SETTINGS} };
 try {
   const raw = localStorage.getItem(KEY);
   if (raw) {
     const p = JSON.parse(raw);
     if (Array.isArray(p.materials) && p.materials.length) D.materials = p.materials;
     if (Array.isArray(p.transactions)) D.transactions = p.transactions;
+    if (Array.isArray(p.expenses)) D.expenses = p.expenses;
     if (p.settings) D.settings = { ...DEFAULT_SETTINGS, ...p.settings };
   }
 } catch(e) {}
@@ -214,12 +223,12 @@ function save(){
   clearTimeout(saveTimer);
   saveTimer = setTimeout(() => {
     try { localStorage.setItem(KEY, JSON.stringify(D)); }
-    catch(e){ toast("Hindi na-save — puno ang storage", true); }
+    catch(e){ toast("Wala ma-save — puno ang storage", true); }
   }, 300);
 }
 
 // ui state
-let S = { tab:"timbang", mode:"buy", selectedId:null, kilosStr:"", ticket:[], period:"day", confirmClear:false };
+let S = { tab:"timbang", mode:"buy", selectedId:null, kilosStr:"", ticket:[], period:"day", confirmClear:false, gastoCat:"Uban" };
 
 // ================= helpers =================
 const $ = (sel) => document.querySelector(sel);
@@ -246,19 +255,20 @@ function mat(id){ return D.materials.find(m=>m.id===id) || null; }
 function unitPrice(m){ return m ? (S.mode==="buy" ? m.buy : m.sell) : 0; }
 
 // ================= reports =================
-const PERIODS = [ {k:"day",label:"Ngayon"}, {k:"week",label:"7 Araw"}, {k:"month",label:"Buwan"}, {k:"all",label:"Lahat"} ];
-const periodLabel = { day:"Ulat Ngayong Araw", week:"Ulat — Huling 7 Araw", month:"Ulat Ngayong Buwan", all:"Ulat — Lahat" };
+const PERIODS = [ {k:"day",label:"Karon"}, {k:"week",label:"7 Adlaw"}, {k:"month",label:"Bulan"}, {k:"all",label:"Tanan"} ];
+const periodLabel = { day:"Report Karong Adlawa", week:"Report — Miaging 7 ka Adlaw", month:"Report Karong Bulana", all:"Report — Tanan" };
 
-function filterByPeriod(p){
+function inPeriod(ts, p){
   const now = new Date();
-  return D.transactions.filter(tx => {
-    const d = new Date(tx.ts);
-    if (p==="day")   return startOfDay(d).getTime() === startOfDay(now).getTime();
-    if (p==="week")  return d >= new Date(startOfDay(now).getTime() - 6*86400000);
-    if (p==="month") return d.getMonth()===now.getMonth() && d.getFullYear()===now.getFullYear();
-    return true;
-  });
+  const d = new Date(ts);
+  if (p==="day")   return startOfDay(d).getTime() === startOfDay(now).getTime();
+  if (p==="week")  return d >= new Date(startOfDay(now).getTime() - 6*86400000);
+  if (p==="month") return d.getMonth()===now.getMonth() && d.getFullYear()===now.getFullYear();
+  return true;
 }
+function filterByPeriod(p){ return D.transactions.filter(tx => inPeriod(tx.ts, p)); }
+function filterExpByPeriod(p){ return (D.expenses||[]).filter(x => inPeriod(x.ts, p)); }
+
 function aggregate(txs){
   const rows = {};
   let buyCash=0, sellCash=0, kIn=0, kOut=0;
@@ -278,14 +288,14 @@ function printReceipt(tx){
   h += '<div class="c b">'+esc(st.shopName||"JUNKSHOP")+'</div>';
   if (st.shopInfo) h += '<div class="c">'+esc(st.shopInfo)+'</div>';
   h += '<div class="c">'+esc(fullStamp(tx.ts))+'</div>';
-  h += '<div class="c">'+(tx.type==="buy" ? "* RESIBO NG BILI *" : "* RESIBO NG BENTA *")+'</div>';
+  h += '<div class="c">'+(tx.type==="buy" ? "* RESIBO SA PALIT *" : "* RESIBO SA BALIGYA *")+'</div>';
   h += '<div>'+sep+'</div>';
   for (const it of tx.items){
     h += '<div class="ln"><span>'+esc(it.name)+' '+num(it.kilos)+'kg x '+num(it.price)+'</span><span>'+num(it.total)+'</span></div>';
   }
   h += '<div>'+sep+'</div>';
   h += '<div class="ln b"><span>TOTAL</span><span>'+peso(tx.total)+'</span></div>';
-  h += '<div>'+sep+'</div><div class="c">Salamat po!</div></div>';
+  h += '<div>'+sep+'</div><div class="c">Daghang salamat!</div></div>';
   $("#print-area").innerHTML = h;
   setTimeout(()=>window.print(), 100);
 }
@@ -293,24 +303,38 @@ function printReceipt(tx){
 function printReport(){
   const txs = filterByPeriod(S.period);
   const a = aggregate(txs);
-  if (!a.count) return;
+  const exps = filterExpByPeriod(S.period);
+  const expTotal = exps.reduce((s,x)=>s+x.amount,0);
+  if (!a.count && !exps.length) return;
   const st = D.settings;
   let h = '<div class="report-doc">';
   h += '<h2 style="margin:0 0 2px">'+esc(st.shopName||"JUNKSHOP")+'</h2>';
   if (st.shopInfo) h += '<div>'+esc(st.shopInfo)+'</div>';
   h += '<h3 style="margin:8px 0 2px">'+periodLabel[S.period]+'</h3>';
-  h += '<div>Na-print: '+esc(fullStamp(new Date()))+'</div>';
-  h += '<table><thead><tr><th>Item</th><th>Kilo Bili</th><th>&#8369; Bili</th><th>Kilo Benta</th><th>&#8369; Benta</th></tr></thead><tbody>';
-  for (const r of a.rows){
-    h += '<tr><td>'+esc(r.name)+'</td><td>'+num(r.kIn)+'</td><td>'+num(r.pIn)+'</td><td>'+num(r.kOut)+'</td><td>'+num(r.pOut)+'</td></tr>';
+  h += '<div>Gi-print: '+esc(fullStamp(new Date()))+'</div>';
+  if (a.rows.length){
+    h += '<table><thead><tr><th>Item</th><th>Kilo Palit</th><th>&#8369; Palit</th><th>Kilo Baligya</th><th>&#8369; Baligya</th></tr></thead><tbody>';
+    for (const r of a.rows){
+      h += '<tr><td>'+esc(r.name)+'</td><td>'+num(r.kIn)+'</td><td>'+num(r.pIn)+'</td><td>'+num(r.kOut)+'</td><td>'+num(r.pOut)+'</td></tr>';
+    }
+    h += '<tr style="font-weight:700"><td>TOTAL</td><td>'+num(a.kIn)+'</td><td>'+num(a.buyCash)+'</td><td>'+num(a.kOut)+'</td><td>'+num(a.sellCash)+'</td></tr>';
+    h += '</tbody></table>';
   }
-  h += '<tr style="font-weight:700"><td>TOTAL</td><td>'+num(a.kIn)+'</td><td>'+num(a.buyCash)+'</td><td>'+num(a.kOut)+'</td><td>'+num(a.sellCash)+'</td></tr>';
-  h += '</tbody></table>';
+  if (exps.length){
+    h += '<h3 style="margin:12px 0 2px">Mga Gastos</h3>';
+    h += '<table><thead><tr><th>Gasto</th><th style="text-align:left">Kategorya</th><th>&#8369;</th></tr></thead><tbody>';
+    for (const x of exps){
+      h += '<tr><td>'+esc(x.desc||x.cat)+'</td><td style="text-align:left">'+esc(x.cat)+'</td><td>'+num(x.amount)+'</td></tr>';
+    }
+    h += '<tr style="font-weight:700"><td>TOTAL</td><td></td><td>'+num(expTotal)+'</td></tr>';
+    h += '</tbody></table>';
+  }
   h += '<div style="margin-top:10px">';
-  h += '<div>Bilang ng transaksyon: '+a.count+'</div>';
-  h += '<div>Perang lumabas (bili): '+peso(a.buyCash)+'</div>';
-  h += '<div>Perang pumasok (benta): '+peso(a.sellCash)+'</div>';
-  h += '<div style="font-weight:700">Gross na tubo: '+peso(a.sellCash - a.buyCash)+'</div>';
+  h += '<div>Ihap sa transaksyon: '+a.count+'</div>';
+  h += '<div>Kwarta nga migawas (palit): '+peso(a.buyCash)+'</div>';
+  h += '<div>Kwarta nga misulod (baligya): '+peso(a.sellCash)+'</div>';
+  h += '<div>Total nga gastos: '+peso(expTotal)+'</div>';
+  h += '<div style="font-weight:700">Netong ginansya: '+peso(a.sellCash - a.buyCash - expTotal)+'</div>';
   h += '</div></div>';
   $("#print-area").innerHTML = h;
   setTimeout(()=>window.print(), 100);
@@ -328,7 +352,7 @@ function updateLCD(){
   const kv = parseFloat(S.kilosStr)||0;
   const up = unitPrice(m);
   const el = $("#lcd"); if (!el) return;
-  el.querySelector(".nm").textContent = m ? m.name.toUpperCase() : "PUMILI NG ITEM";
+  el.querySelector(".nm").textContent = m ? m.name.toUpperCase() : "PILI OG ITEM";
   el.querySelector(".up").textContent = m ? peso(up)+"/kg" : "--";
   el.querySelector(".kv").innerHTML = esc(S.kilosStr||"0") + '<small> kg</small>';
   const tot = el.querySelector(".total");
@@ -357,7 +381,7 @@ function completeTicket(){
   S.ticket=[];
   save();
   render();
-  toast(tx.type==="buy" ? "Bayaran ang suki: "+peso(tx.total) : "Benta naitala: "+peso(tx.total));
+  toast(tx.type==="buy" ? "Bayran ang suki: "+peso(tx.total) : "Narekord ang baligya: "+peso(tx.total));
   if (D.settings.autoPrint) printReceipt(tx);
 }
 
@@ -369,6 +393,7 @@ function render(){
   const v = $("#view");
   if (S.tab==="timbang") renderTimbang(v);
   else if (S.tab==="presyo") renderPresyo(v);
+  else if (S.tab==="gastos") renderGastos(v);
   else if (S.tab==="talaan") renderTalaan(v);
   else renderUlat(v);
 }
@@ -377,8 +402,9 @@ function renderNav(){
   const tabs = [
     {k:"timbang",label:"Timbang",ic:"\u2696\uFE0F"},
     {k:"presyo",label:"Presyo",ic:"\uD83C\uDFF7\uFE0F"},
-    {k:"talaan",label:"Talaan",ic:"\uD83D\uDCCB"},
-    {k:"ulat",label:"Ulat",ic:"\uD83D\uDCCA"},
+    {k:"gastos",label:"Gastos",ic:"\uD83D\uDCB8"},
+    {k:"talaan",label:"Rekord",ic:"\uD83D\uDCCB"},
+    {k:"ulat",label:"Report",ic:"\uD83D\uDCCA"},
   ];
   $("#nav").innerHTML = tabs.map(t =>
     '<button class="'+(S.tab===t.k?"on":"")+'" data-tab="'+t.k+'">'+
@@ -395,12 +421,12 @@ function renderTimbang(v){
   let h = '<div class="tg">';
   // toggle
   h += '<div class="a-toggle toggle-row">';
-  h += '<button class="display toggle-btn buy'+(S.mode==="buy"?" on":"")+'" data-mode="buy">BILI (pasok)</button>';
-  h += '<button class="display toggle-btn sell'+(S.mode==="sell"?" on":"")+'" data-mode="sell">BENTA (labas)</button>';
+  h += '<button class="display toggle-btn buy'+(S.mode==="buy"?" on":"")+'" data-mode="buy">PALIT (sulod)</button>';
+  h += '<button class="display toggle-btn sell'+(S.mode==="sell"?" on":"")+'" data-mode="sell">BALIGYA (gawas)</button>';
   h += '</div>';
   // lcd
   h += '<div class="a-lcd lcd" id="lcd">';
-  h += '<div class="row1 mono"><span class="nm">'+(m?esc(m.name.toUpperCase()):"PUMILI NG ITEM")+'</span><span class="up">'+(m?peso(up)+"/kg":"--")+'</span></div>';
+  h += '<div class="row1 mono"><span class="nm">'+(m?esc(m.name.toUpperCase()):"PILI OG ITEM")+'</span><span class="up">'+(m?peso(up)+"/kg":"--")+'</span></div>';
   h += '<div class="mono kilos kv">'+esc(S.kilosStr||"0")+'<small> kg</small></div>';
   h += '<div class="mono total'+(kv>0?" on":"")+'">= '+peso(kv*up)+'</div>';
   h += '</div>';
@@ -417,7 +443,7 @@ function renderTimbang(v){
   for (const k of ["7","8","9","4","5","6","1","2","3",".","0","back"]){
     h += '<button class="mono" data-key="'+k+'">'+(k==="back"?"\u232B":k)+'</button>';
   }
-  h += '</div><button class="display add-btn" id="add-btn"'+((m&&kv>0)?"":" disabled")+'>Idagdag sa resibo</button></div>';
+  h += '</div><button class="display add-btn" id="add-btn"'+((m&&kv>0)?"":" disabled")+'>Idugang sa resibo</button></div>';
   // ticket
   h += '<div class="a-ticket">';
   if (S.ticket.length){
@@ -429,9 +455,9 @@ function renderTimbang(v){
            '<div class="mono">'+peso(it.total)+'</div>'+
            '<button class="xbtn" data-del="'+it.uid+'">\u2715</button></div>';
     }
-    h += '<button class="display pay-btn '+S.mode+'" id="pay-btn">'+(S.mode==="buy"?"Bayaran":"Benta")+' — '+peso(total)+'</button></div>';
+    h += '<button class="display pay-btn '+S.mode+'" id="pay-btn">'+(S.mode==="buy"?"Bayri":"Baligya")+' — '+peso(total)+'</button></div>';
   } else {
-    h += '<div class="empty-box">Walang laman ang resibo. Pumili ng item at i-type ang kilo.</div>';
+    h += '<div class="empty-box">Walay sulod ang resibo. Pili og item ug i-type ang kilo.</div>';
   }
   h += '</div></div>';
   v.innerHTML = h;
@@ -450,12 +476,12 @@ function renderTimbang(v){
 
 function renderPresyo(v){
   let h = '<div style="max-width:560px;margin:0 auto">';
-  h += '<div class="settings-card"><div class="display hd">Detalye ng shop (lalabas sa resibo)</div>';
-  h += '<input type="text" id="set-name" placeholder="Pangalan ng shop" value="'+esc(D.settings.shopName)+'">';
-  h += '<input type="text" id="set-info" placeholder="Address / contact no. (optional)" value="'+esc(D.settings.shopInfo)+'">';
-  h += '<label class="chk"><input type="checkbox" id="set-autoprint"'+(D.settings.autoPrint?" checked":"")+'> I-print agad ang resibo pagkatapos ng bawat transaksyon</label></div>';
+  h += '<div class="settings-card"><div class="display hd">Detalye sa shop (mogawas sa resibo)</div>';
+  h += '<input type="text" id="set-name" placeholder="Ngalan sa shop" value="'+esc(D.settings.shopName)+'">';
+  h += '<input type="text" id="set-info" placeholder="Address / contact no. (opsyonal)" value="'+esc(D.settings.shopInfo)+'">';
+  h += '<label class="chk"><input type="checkbox" id="set-autoprint"'+(D.settings.autoPrint?" checked":"")+'> I-print dayon ang resibo human sa matag transaksyon</label></div>';
 
-  h += '<div class="price-head display"><div>Item</div><div>Bili/kg</div><div>Benta/kg</div><div></div></div>';
+  h += '<div class="price-head display"><div>Item</div><div>Palit/kg</div><div>Baligya/kg</div><div></div></div>';
   h += '<div class="card" id="price-list">';
   for (const m of D.materials){
     h += '<div class="price-row" data-id="'+esc(m.id)+'">'+
@@ -465,13 +491,13 @@ function renderPresyo(v){
          '<button class="xbtn" data-rm="'+esc(m.id)+'">\uD83D\uDDD1</button></div>';
   }
   h += '</div>';
-  h += '<button class="display dash-btn" id="add-mat">+ Dagdag na item</button>';
+  h += '<button class="display dash-btn" id="add-mat">+ Dugang nga item</button>';
   h += '<div class="util-row"><button class="util-reset" id="reset-prices">\u21BA Ibalik ang default</button>'+
-       '<button class="util-danger" id="clear-tx">Burahin ang talaan</button></div>';
+       '<button class="util-danger" id="clear-tx">Papasa ang mga rekord</button></div>';
   if (S.confirmClear){
-    h += '<div class="confirm-box">Buburahin ang lahat ng transaksyon. Hindi na ito maibabalik.'+
-         '<div class="btns"><button class="confirm-yes" id="clear-yes">Oo, burahin</button>'+
-         '<button class="confirm-no" id="clear-no">Huwag</button></div></div>';
+    h += '<div class="confirm-box">Papason ang tanang transaksyon ug gastos. Dili na kini mabalik.'+
+         '<div class="btns"><button class="confirm-yes" id="clear-yes">Oo, papasa</button>'+
+         '<button class="confirm-no" id="clear-no">Ayaw</button></div></div>';
   }
   h += '</div>';
   v.innerHTML = h;
@@ -494,19 +520,70 @@ function renderPresyo(v){
     D.materials = D.materials.filter(m => m.id!==b.dataset.rm);
     save(); render();
   });
-  $("#add-mat").onclick = () => { D.materials.push({id:"mat_"+Date.now(), name:"Bagong item", buy:0, sell:0}); save(); render(); };
-  $("#reset-prices").onclick = () => { D.materials = DEFAULT_MATERIALS.map(m=>({...m})); save(); render(); toast("Naibalik ang default na presyo"); };
+  $("#add-mat").onclick = () => { D.materials.push({id:"mat_"+Date.now(), name:"Bag-ong item", buy:0, sell:0}); save(); render(); };
+  $("#reset-prices").onclick = () => { D.materials = DEFAULT_MATERIALS.map(m=>({...m})); save(); render(); toast("Nabalik ang default nga presyo"); };
   $("#clear-tx").onclick = () => { S.confirmClear = true; render(); };
-  const cy = $("#clear-yes"); if (cy) cy.onclick = () => { D.transactions=[]; S.confirmClear=false; save(); render(); toast("Nabura ang lahat ng talaan"); };
+  const cy = $("#clear-yes"); if (cy) cy.onclick = () => { D.transactions=[]; D.expenses=[]; S.confirmClear=false; save(); render(); toast("Napapas ang tanang rekord"); };
   const cn = $("#clear-no"); if (cn) cn.onclick = () => { S.confirmClear=false; render(); };
+}
+
+function renderGastos(v){
+  let h = '<div style="max-width:560px;margin:0 auto">';
+  h += '<div class="settings-card"><div class="display hd">Idugang ang gasto</div>';
+  h += '<div class="cat-row">';
+  for (const c of GASTO_CATS){
+    h += '<button class="display cat-chip'+(S.gastoCat===c?" on":"")+'" data-cat="'+c+'">'+c+'</button>';
+  }
+  h += '</div>';
+  h += '<input type="text" id="g-desc" placeholder="Unsa nga gasto? (opsyonal)">';
+  h += '<input type="number" inputmode="decimal" id="g-amt" class="mono" placeholder="Pila? (\u20B1)">';
+  h += '<button class="display add-btn" id="g-add">Idugang ang gasto</button></div>';
+
+  if (!(D.expenses||[]).length){
+    h += '<div class="empty-box">Wala pay narekord nga gasto.</div>';
+  } else {
+    const groups = {};
+    for (const x of D.expenses){ const k = dateKey(x.ts); (groups[k]=groups[k]||[]).push(x); }
+    for (const [day, xs] of Object.entries(groups)){
+      const tot = xs.reduce((s,x)=>s+x.amount,0);
+      h += '<div style="margin-bottom:18px"><div class="display day-title">'+esc(day)+' <span style="color:var(--rust)">\u2014 '+peso(tot)+'</span></div><div class="card">';
+      for (const x of xs){
+        h += '<div class="ticket-row"><div class="info">'+
+             '<div class="display nm">'+esc(x.desc||x.cat)+'</div>'+
+             '<div class="sub">'+esc(x.cat)+' \u00B7 '+timeStr(x.ts)+'</div></div>'+
+             '<div class="mono" style="color:var(--rust)">'+peso(x.amount)+'</div>'+
+             '<button class="xbtn" data-gdel="'+esc(x.id)+'">\u2715</button></div>';
+      }
+      h += '</div></div>';
+    }
+  }
+  h += '</div>';
+  v.innerHTML = h;
+
+  v.querySelectorAll("[data-cat]").forEach(b => b.onclick = () => {
+    S.gastoCat = b.dataset.cat;
+    v.querySelectorAll("[data-cat]").forEach(x => x.classList.toggle("on", x.dataset.cat===S.gastoCat));
+  });
+  $("#g-add").onclick = () => {
+    const amt = parseFloat($("#g-amt").value)||0;
+    if (amt<=0){ toast("Ibutang ang kantidad sa gasto", true); return; }
+    const desc = $("#g-desc").value.trim();
+    D.expenses.unshift({ id:"ex_"+Date.now(), desc, cat:S.gastoCat, amount:amt, ts:new Date().toISOString() });
+    save(); render();
+    toast("Nadugang ang gasto: "+peso(amt));
+  };
+  v.querySelectorAll("[data-gdel]").forEach(b => b.onclick = () => {
+    D.expenses = D.expenses.filter(x => x.id!==b.dataset.gdel);
+    save(); render();
+  });
 }
 
 function renderTalaan(v){
   if (!D.transactions.length){
     v.innerHTML = '<div style="text-align:center;padding:60px 20px;color:var(--muted)">'+
       '<div style="font-size:34px;opacity:.5">\u2696\uFE0F</div>'+
-      '<div class="display" style="font-size:18px">Walang talaan pa</div>'+
-      '<div style="font-size:13px;margin-top:4px">Magtimbang sa unang tab para magsimula.</div></div>';
+      '<div class="display" style="font-size:18px">Wala pay rekord</div>'+
+      '<div style="font-size:13px;margin-top:4px">Pagtimbang sa unang tab aron magsugod.</div></div>';
     return;
   }
   const groups = {};
@@ -519,13 +596,13 @@ function renderTalaan(v){
     const kilosIn = txs.filter(t=>t.type==="buy").reduce((s,t)=>s+t.items.reduce((a,i)=>a+i.kilos,0),0);
     h += '<div style="margin-bottom:18px"><div class="display day-title">'+esc(day)+'</div>';
     h += '<div class="sum-grid" style="margin-bottom:8px">';
-    h += '<div class="stat"><div class="lb">Nabili</div><div class="mono vl" style="color:var(--amber-dark)">'+peso(bought)+'</div></div>';
-    h += '<div class="stat"><div class="lb">Nabenta</div><div class="mono vl" style="color:var(--green)">'+peso(sold)+'</div></div>';
-    h += '<div class="stat"><div class="lb">Kilo pasok</div><div class="mono vl">'+kgf(kilosIn)+'</div></div>';
+    h += '<div class="stat"><div class="lb">Napalit</div><div class="mono vl" style="color:var(--amber-dark)">'+peso(bought)+'</div></div>';
+    h += '<div class="stat"><div class="lb">Nabaligya</div><div class="mono vl" style="color:var(--green)">'+peso(sold)+'</div></div>';
+    h += '<div class="stat"><div class="lb">Kilo sulod</div><div class="mono vl">'+kgf(kilosIn)+'</div></div>';
     h += '</div><div class="card">';
     for (const tx of txs){
       h += '<div class="tx-row"><div class="info"><div class="top">'+
-           '<span class="display tag '+tx.type+'">'+(tx.type==="buy"?"Bili":"Benta")+' \u00B7 '+timeStr(tx.ts)+'</span>'+
+           '<span class="display tag '+tx.type+'">'+(tx.type==="buy"?"Palit":"Baligya")+' \u00B7 '+timeStr(tx.ts)+'</span>'+
            '<span class="mono">'+peso(tx.total)+'</span></div>'+
            '<div class="sub">'+tx.items.map(it=>esc(it.name)+' '+kgf(it.kilos)).join(" \u00B7 ")+'</div></div>'+
            '<button class="print-mini" data-print="'+esc(tx.id)+'" title="I-print ang resibo">\uD83D\uDDA8</button></div>';
@@ -543,7 +620,9 @@ function renderTalaan(v){
 function renderUlat(v){
   const txs = filterByPeriod(S.period);
   const a = aggregate(txs);
-  const tubo = a.sellCash - a.buyCash;
+  const exps = filterExpByPeriod(S.period);
+  const expTotal = exps.reduce((s,x)=>s+x.amount,0);
+  const neto = a.sellCash - a.buyCash - expTotal;
 
   let h = '<div style="max-width:720px;margin:0 auto">';
   h += '<div class="period-row">';
@@ -553,11 +632,12 @@ function renderUlat(v){
   h += '</div>';
   h += '<div class="rep-grid" style="margin-bottom:14px">';
   const stats = [
-    ["Nabili (labas)", peso(a.buyCash), "var(--amber-dark)"],
-    ["Nabenta (pasok)", peso(a.sellCash), "var(--green)"],
-    ["Gross tubo", peso(tubo), tubo>=0?"var(--green)":"var(--rust)"],
-    ["Kilo pasok", kgf(a.kIn), "var(--ink)"],
-    ["Kilo labas", kgf(a.kOut), "var(--ink)"],
+    ["Napalit (gawas)", peso(a.buyCash), "var(--amber-dark)"],
+    ["Nabaligya (sulod)", peso(a.sellCash), "var(--green)"],
+    ["Gastos", peso(expTotal), "var(--rust)"],
+    ["Netong ginansya", peso(neto), neto>=0?"var(--green)":"var(--rust)"],
+    ["Kilo sulod", kgf(a.kIn), "var(--ink)"],
+    ["Kilo gawas", kgf(a.kOut), "var(--ink)"],
     ["Transaksyon", String(a.count), "var(--ink)"],
   ];
   for (const [lb,vl,col] of stats){
@@ -565,7 +645,7 @@ function renderUlat(v){
   }
   h += '</div>';
   if (a.rows.length){
-    h += '<div class="card"><div class="rep-head display"><div>Item</div><div>Kilo bili</div><div>\u20B1 Bili</div><div>Kilo benta</div><div>\u20B1 Benta</div></div>';
+    h += '<div class="card"><div class="rep-head display"><div>Item</div><div>Kilo palit</div><div>\u20B1 Palit</div><div>Kilo baligya</div><div>\u20B1 Baligya</div></div>';
     for (const r of a.rows){
       h += '<div class="rep-row"><div style="font-weight:600">'+esc(r.name)+'</div>'+
            '<div class="mono">'+num(r.kIn)+'</div><div class="mono" style="color:var(--amber-dark)">'+num(r.pIn)+'</div>'+
@@ -573,9 +653,9 @@ function renderUlat(v){
     }
     h += '</div>';
   } else {
-    h += '<div class="empty-box">Walang transaksyon sa panahong ito.</div>';
+    h += '<div class="empty-box">Walay transaksyon niini nga panahon.</div>';
   }
-  h += '<button class="display big-print" id="print-report"'+(a.count?"":" disabled")+'>\uD83D\uDDA8 I-print ang ulat</button>';
+  h += '<button class="display big-print" id="print-report"'+((a.count||exps.length)?"":" disabled")+'>\uD83D\uDDA8 I-print ang report</button>';
   h += '</div>';
   v.innerHTML = h;
 
@@ -590,7 +670,7 @@ function renderUlat(v){
   const manifest = {
     name: "Junkshop POS",
     short_name: "Junkshop",
-    description: "POS para sa junkshop — timbang, presyo, resibo, at ulat.",
+    description: "POS para sa junkshop — timbang, presyo, gastos, resibo, ug report.",
     start_url: location.href.split("#")[0].split("?")[0],
     scope: location.href.replace(/[^/]*$/, ""),
     display: "standalone",

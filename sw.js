@@ -1,5 +1,5 @@
 /* Junkshop POS — service worker (offline support) */
-const CACHE = "junkshop-pos-v1";
+const CACHE = "junkshop-pos-v2";
 const ASSETS = ["./", "./index.html"];
 
 self.addEventListener("install", (e) => {
