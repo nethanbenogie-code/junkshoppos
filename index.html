@@ -340,6 +340,69 @@ function printReport(){
   setTimeout(()=>window.print(), 100);
 }
 
+// ================= backup / export =================
+function downloadFile(name, content, type){
+  try {
+    const blob = new Blob([content], { type });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = name;
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500);
+  } catch(e) { toast("Wala mahimo ang download", true); }
+}
+const csvCell = (v) => { v = String(v ?? ""); return /[",\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; };
+const csvJoin = (rows) => "\uFEFF" + rows.map(r => r.map(csvCell).join(",")).join("\r\n");
+const dstamp = () => new Date().toISOString().slice(0, 10);
+
+function exportTxCSV(){
+  if (!D.transactions.length){ toast("Wala pay transaksyon", true); return; }
+  const rows = [["Petsa","Oras","Klase","Item","Kilo","Presyo/kg","Total","Resibo ID"]];
+  for (const tx of D.transactions) for (const it of tx.items){
+    rows.push([ new Date(tx.ts).toLocaleDateString("en-PH"), timeStr(tx.ts),
+      tx.type === "buy" ? "Palit" : "Baligya", it.name, it.kilos, it.price, it.total, tx.id ]);
+  }
+  downloadFile("junkshop-transaksyon-" + dstamp() + ".csv", csvJoin(rows), "text/csv;charset=utf-8");
+  toast("Na-download ang CSV");
+}
+function exportExpCSV(){
+  if (!(D.expenses||[]).length){ toast("Wala pay gastos", true); return; }
+  const rows = [["Petsa","Oras","Kategorya","Gasto","Kantidad"]];
+  for (const x of D.expenses){
+    rows.push([ new Date(x.ts).toLocaleDateString("en-PH"), timeStr(x.ts), x.cat, x.desc || x.cat, x.amount ]);
+  }
+  downloadFile("junkshop-gastos-" + dstamp() + ".csv", csvJoin(rows), "text/csv;charset=utf-8");
+  toast("Na-download ang CSV");
+}
+function backupJSON(){
+  downloadFile("junkshop-backup-" + dstamp() + ".json", JSON.stringify(D, null, 2), "application/json");
+  toast("Na-download ang backup");
+}
+function handleRestore(e){
+  const file = e.target.files && e.target.files[0];
+  e.target.value = "";
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    try {
+      const p = JSON.parse(reader.result);
+      const txs = Array.isArray(p.transactions) ? p.transactions : [];
+      const exps = Array.isArray(p.expenses) ? p.expenses : [];
+      const mats = (Array.isArray(p.materials) && p.materials.length) ? p.materials : D.materials;
+      const ok = window.confirm("Ilisan ang tanang data karon gamit ang backup?\n(" + txs.length + " transaksyon, " + exps.length + " gastos)");
+      if (!ok) return;
+      D = { materials: mats, transactions: txs, expenses: exps, settings: { ...DEFAULT_SETTINGS, ...(p.settings || {}) } };
+      try { localStorage.setItem(KEY, JSON.stringify(D)); } catch(err) {}
+      render();
+      toast("Na-restore ang backup");
+    } catch(err) {
+      toast("Dili ma-basa ang backup file", true);
+    }
+  };
+  reader.readAsText(file);
+}
+
 // ================= actions =================
 function press(k){
   if (k==="back") S.kilosStr = S.kilosStr.slice(0,-1);
@@ -499,6 +562,13 @@ function renderPresyo(v){
          '<div class="btns"><button class="confirm-yes" id="clear-yes">Oo, papasa</button>'+
          '<button class="confirm-no" id="clear-no">Ayaw</button></div></div>';
   }
+  h += '<div class="settings-card" style="margin-top:18px"><div class="display hd">Backup ug Export</div>';
+  h += '<div class="util-row" style="margin-top:0"><button class="util-reset" id="csv-tx">\u2B07 CSV \u2014 transaksyon</button>'+
+       '<button class="util-reset" id="csv-exp">\u2B07 CSV \u2014 gastos</button></div>';
+  h += '<div class="util-row" style="margin-top:8px"><button class="util-reset" id="bk-dl">\u2B07 Backup (JSON)</button>'+
+       '<button class="util-reset" id="bk-restore">\u2B06 I-restore ang backup</button></div>';
+  h += '<input type="file" id="bk-file" accept="application/json,.json" style="display:none">';
+  h += '<div style="font-size:12px;color:var(--muted);margin-top:8px">Regular nga i-download ang backup aron dili mawala ang rekord kung mawala o mausab ang device. Ang CSV pwede ablihan sa Excel.</div></div>';
   h += '</div>';
   v.innerHTML = h;
 
@@ -525,6 +595,11 @@ function renderPresyo(v){
   $("#clear-tx").onclick = () => { S.confirmClear = true; render(); };
   const cy = $("#clear-yes"); if (cy) cy.onclick = () => { D.transactions=[]; D.expenses=[]; S.confirmClear=false; save(); render(); toast("Napapas ang tanang rekord"); };
   const cn = $("#clear-no"); if (cn) cn.onclick = () => { S.confirmClear=false; render(); };
+  $("#csv-tx").onclick = exportTxCSV;
+  $("#csv-exp").onclick = exportExpCSV;
+  $("#bk-dl").onclick = backupJSON;
+  $("#bk-restore").onclick = () => $("#bk-file").click();
+  $("#bk-file").onchange = handleRestore;
 }
 
 function renderGastos(v){

@@ -40,6 +40,15 @@ Kung na-install na, mogana kini bisan walay signal o WiFi. Ang tanan nga presyo,
 - **Report** — sa Report tab, pilia ang panahon unya pindota ang "I-print ang report". Apil sa report ang mga gastos ug ang netong ginansya (baligya − palit − gastos).
 - Sa Android, mogana ang print sa bisan unsang printer nga naka-setup sa phone (ang Bluetooth thermal printers kasagaran adunay kaugalingong print service app nga mogawas sa print dialog).
 
+## Backup ug Export (sa Presyo tab)
+
+- **⬇ CSV — transaksyon** — i-download ang tanang transaksyon isip CSV, pwede ablihan sa Excel (Petsa, Oras, Klase, Item, Kilo, Presyo/kg, Total)
+- **⬇ CSV — gastos** — i-download ang tanang gastos isip CSV
+- **⬇ Backup (JSON)** — kompleto nga kopya sa tanang data (presyo, transaksyon, gastos, settings)
+- **⬆ I-restore ang backup** — ibalik ang data gikan sa JSON backup file — gamiton kung mobalhin og bag-ong cellphone
+
+Tambag: i-download ang backup kada semana ug i-save sa Google Drive o email aron adunay kopya.
+
 ## Importante nga pahinumdom
 
 - Ang data naka-save **sa device lang** (localStorage). Kung papason ang browser data o lahi nga device ang gamiton, dili mobalhin ang rekord.
