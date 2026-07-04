@@ -140,6 +140,10 @@
   .big-print{width:100%;margin-top:14px;padding:14px 0;font-size:17px;border-radius:12px;border:none;cursor:pointer;background:var(--ink);color:#fff}
   .big-print:disabled{background:var(--line);color:var(--muted);cursor:default;transform:none}
 
+  /* font resize */
+  .fs-btn{width:40px;height:36px;border-radius:8px;border:1px solid var(--line);background:var(--bg);cursor:pointer;font-size:15px;color:var(--ink);font-weight:700}
+  #fs-val{min-width:48px;text-align:center;font-size:14px}
+
   /* nav + toast */
   nav{position:fixed;bottom:0;left:0;right:0;background:var(--card);border-top:1px solid var(--line);z-index:40;padding-bottom:env(safe-area-inset-bottom)}
   nav .inner{max-width:640px;margin:0 auto;display:grid;grid-template-columns:repeat(5,1fr)}
@@ -203,7 +207,7 @@ const DEFAULT_MATERIALS = [
   { id:"baterya", name:"Baterya", buy:35, sell:42 },
 ];
 const GASTO_CATS = ["Kuryente","Tubig","Sweldo","Plete","Pagkaon","Gasolina","Uban"];
-const DEFAULT_SETTINGS = { shopName:"JUNKSHOP", shopInfo:"", autoPrint:false };
+const DEFAULT_SETTINGS = { shopName:"JUNKSHOP", shopInfo:"", autoPrint:false, fontScale:100 };
 const KEY = "junkshop:data";
 
 let D = { materials: DEFAULT_MATERIALS.map(m=>({...m})), transactions: [], expenses: [], settings: {...DEFAULT_SETTINGS} };
@@ -449,7 +453,11 @@ function completeTicket(){
 }
 
 // ================= render =================
+function applyFontScale(){
+  try { $("#app").style.zoom = String((D.settings.fontScale||100)/100); } catch(e){}
+}
 function render(){
+  applyFontScale();
   $("#hdr-title").innerHTML = esc(D.settings.shopName||"Junkshop") + ' <span>POS</span>';
   $("#hdr-date").textContent = new Date().toLocaleDateString("en-PH",{month:"short",day:"numeric",year:"numeric"});
   renderNav();
@@ -542,7 +550,8 @@ function renderPresyo(v){
   h += '<div class="settings-card"><div class="display hd">Detalye sa shop (mogawas sa resibo)</div>';
   h += '<input type="text" id="set-name" placeholder="Ngalan sa shop" value="'+esc(D.settings.shopName)+'">';
   h += '<input type="text" id="set-info" placeholder="Address / contact no. (opsyonal)" value="'+esc(D.settings.shopInfo)+'">';
-  h += '<label class="chk"><input type="checkbox" id="set-autoprint"'+(D.settings.autoPrint?" checked":"")+'> I-print dayon ang resibo human sa matag transaksyon</label></div>';
+  h += '<label class="chk"><input type="checkbox" id="set-autoprint"'+(D.settings.autoPrint?" checked":"")+'> I-print dayon ang resibo human sa matag transaksyon</label>'+
+       '<div style="display:flex;align-items:center;gap:10px;margin-top:12px"><span style="font-size:13px;color:var(--muted)">Gidak-on sa letra</span><button class="fs-btn" id="fs-minus">A\u2212</button><span class="mono" id="fs-val">'+(D.settings.fontScale||100)+'%</span><button class="fs-btn" id="fs-plus">A+</button></div></div>';
 
   h += '<div class="price-head display"><div>Item</div><div>Palit/kg</div><div>Baligya/kg</div><div></div></div>';
   h += '<div class="card" id="price-list">';
@@ -575,6 +584,15 @@ function renderPresyo(v){
   $("#set-name").oninput = e => { D.settings.shopName = e.target.value; save(); };
   $("#set-info").oninput = e => { D.settings.shopInfo = e.target.value; save(); };
   $("#set-autoprint").onchange = e => { D.settings.autoPrint = e.target.checked; save(); };
+  const setFS = (dlt) => {
+    let f = (D.settings.fontScale||100) + dlt;
+    f = Math.max(70, Math.min(160, f));
+    D.settings.fontScale = f;
+    save(); applyFontScale();
+    $("#fs-val").textContent = f + "%";
+  };
+  $("#fs-minus").onclick = () => setFS(-15);
+  $("#fs-plus").onclick = () => setFS(15);
   $("#set-name").onblur = () => render();
 
   v.querySelectorAll(".price-row input").forEach(inp => {
