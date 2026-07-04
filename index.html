@@ -1,0 +1,1193 @@
+<!DOCTYPE html>
+<html lang="en-PH">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>JunkShop POS</title>
+    <link rel="manifest" href="data:application/json;base64,ewogICJuYW1lIjogIkp1bmtTaG9wIFBPUyIsCiAgInNob3J0X25hbWUiOiAiSnVua1BPUyIsCiAgImRlc2NyaXB0aW9uIjogIkp1bmtTaG9wIFBvaW50LW9mLVNhbGUgU3lzdGVtIiwKICAic3RhcnRfdXJsIjogIi4iLAogICJkaXNwbGF5IjogInN0YW5kYWxvbmUiLAogICJiYWNrZ3JvdW5kX2NvbG9yIjogIiNFOUU3RTEiLAogICJ0aGVtZV9jb2xvciI6ICIjMjIyNTJBIiwKICAiaWNvbnMiOiBbCiAgICB7ICJzcmMiOiAiZGF0YTppbWFnZS9zdmcreG1sLDxzdmcgeG1sbnM9J2h0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnJyB2aWV3Qm94PScwIDAgNTEyIDUxMic+PHJlY3Qgd2lkdGg9JzUxMicgaGVpZ2h0PSc1MTInIHJ4PSc2MCcgZmlsbD0nJTIzMjIyNTJBJy8+PHRleHQgeD0nMjU2JyB5PSczNDAnIGZvbnQtc2l6ZT0nMjQwJyB0ZXh0LWFuY2hvcj0nbWlkZGxlJyBmaWxsPSd3aGl0ZScgZm9udC1mYW1pbHk9J3NhbnMtc2VyaWYnPkokPC90ZXh0Pjwvc3ZnPg=="LCAic2l6ZXMiOiAiNTEyeDUxMiIsICJ0eXBlIjogImltYWdlL3N2Zyt4bWwiIH0sCiAgICB7ICJzcmMiOiAiZGF0YTppbWFnZS9zdmcreG1sLDxzdmcgeG1sbnM9J2h0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnJyB2aWV3Qm94PScwIDAgMTkyIDE5Mic+PHJlY3Qgd2lkdGg9JzE5MicgaGVpZ2h0PScxOTInIHJ4PScyNCcgZmlsbD0nJTIzMjIyNTJBJy8+PHRleHQgeD0nOTYnIHk9JzEzMCcgZm9udC1zaXplPSc5MCcgdGV4dC1hbmNob3I9J21pZGRsZScgZmlsbD0nd2hpdGUnIGZvbnQtZmFtaWx5PSdzYW5zLXNlcmlmJz4kPC90ZXh0Pjwvc3ZnPg=="LCAic2l6ZXMiOiAiMTkyeDE5MiIsICJ0eXBlIjogImltYWdlL3N2Zyt4bWwiIH0KICBdCn0=" />
+    <style>
+        /* ---------- Design tokens ---------- */
+        :root {
+            --bg: #E9E7E1;
+            --card: #FFFFFF;
+            --line: #D5D2CA;
+            --ink: #22252A;
+            --muted: #6E7076;
+            --amber: #E8930C;
+            --amberDark: #C67B08;
+            --rust: #B4472E;
+            --green: #2E7D4F;
+            --lcdBg: #14231A;
+            --lcdDigit: #8AF5A3;
+            --lcdDim: #3D5C49;
+        }
+
+        @import url('https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@600;700&family=Share+Tech+Mono&display=swap');
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        html,
+        body {
+            background: var(--bg);
+            min-height: 100vh;
+            color: var(--ink);
+            font-family: system-ui, -apple-system, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+        }
+
+        .js-display {
+            font-family: 'Saira Condensed', system-ui, sans-serif;
+            letter-spacing: 0.03em;
+        }
+        .js-mono {
+            font-family: 'Share Tech Mono', ui-monospace, monospace;
+        }
+        .js-btn {
+            transition: transform 0.08s ease;
+            touch-action: manipulation;
+        }
+        .js-btn:active {
+            transform: translateY(1px);
+        }
+
+        /* ---- responsive layout ---- */
+        .js-wrap {
+            max-width: 480px;
+            margin: 0 auto;
+            padding: 0 12px 100px;
+        }
+        .tg {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+        .mat-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+        }
+        .sum-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+        }
+        .rep-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+        }
+
+        @media (min-width: 700px) {
+            .js-wrap {
+                max-width: 700px;
+            }
+            .mat-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+            .rep-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+        @media (min-width: 980px) {
+            .js-wrap {
+                max-width: 1000px;
+            }
+            .tg {
+                display: grid;
+                grid-template-columns: 400px 1fr;
+                grid-template-areas: "toggle chips" "lcd chips" "pad ticket";
+                grid-template-rows: auto auto 1fr;
+                gap: 16px 24px;
+                align-items: start;
+            }
+            .a-toggle {
+                grid-area: toggle;
+            }
+            .a-lcd {
+                grid-area: lcd;
+            }
+            .a-chips {
+                grid-area: chips;
+            }
+            .a-pad {
+                grid-area: pad;
+            }
+            .a-ticket {
+                grid-area: ticket;
+            }
+            .rep-grid {
+                grid-template-columns: repeat(6, 1fr);
+            }
+        }
+
+        /* ---- printing ---- */
+        .print-area {
+            display: none;
+        }
+        @media print {
+            body {
+                background: #fff !important;
+            }
+            .screen-ui {
+                display: none !important;
+            }
+            .print-area {
+                display: block !important;
+                color: #000;
+                background: #fff;
+            }
+            .receipt {
+                width: 270px;
+                font-family: 'Share Tech Mono', ui-monospace, monospace;
+                font-size: 12px;
+            }
+            .report-doc {
+                font-family: system-ui, sans-serif;
+                font-size: 13px;
+                max-width: 720px;
+            }
+            .report-doc table {
+                width: 100%;
+                border-collapse: collapse;
+            }
+            .report-doc th,
+            .report-doc td {
+                border: 1px solid #999;
+                padding: 5px 8px;
+                text-align: right;
+            }
+            .report-doc th:first-child,
+            .report-doc td:first-child {
+                text-align: left;
+            }
+            @page {
+                margin: 10mm;
+            }
+        }
+
+        /* ---- utility ---- */
+        .hidden {
+            display: none !important;
+        }
+        .flex-center {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .gap-1 {
+            gap: 4px;
+        }
+        .gap-2 {
+            gap: 8px;
+        }
+        .w-full {
+            width: 100%;
+        }
+        .text-center {
+            text-align: center;
+        }
+        .text-right {
+            text-align: right;
+        }
+        .truncate {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* toast animation */
+        .toast-enter {
+            animation: toastIn 0.25s ease forwards;
+        }
+        @keyframes toastIn {
+            0% {
+                opacity: 0;
+                transform: translateX(-50%) translateY(16px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+            }
+        }
+
+        /* button reset */
+        button {
+            font: inherit;
+        }
+        input {
+            font: inherit;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ============ PRINT AREA ============ -->
+    <div class="print-area" id="printArea">
+        <!-- filled dynamically before print -->
+    </div>
+
+    <!-- ============ SCREEN UI ============ -->
+    <div class="screen-ui">
+        <div class="js-wrap">
+
+            <!-- HEADER -->
+            <header style="display:flex;align-items:baseline;justify-content:space-between;padding:18px 4px 12px;">
+                <div class="js-display" style="font-size:26px;font-weight:700;text-transform:uppercase;">
+                    <span id="shopNameDisplay">Junkshop</span><span style="color:var(--amber);"> POS</span>
+                </div>
+                <div class="js-mono" style="font-size:12px;color:var(--muted);" id="headerDate"></div>
+            </header>
+
+            <!-- ================= TIMBANG ================= -->
+            <div id="tabTimbang" class="tg">
+
+                <!-- toggle -->
+                <div class="a-toggle" style="display:flex;gap:8px;">
+                    <button class="js-display js-btn mode-btn" data-mode="buy"
+                    style="flex:1;padding:10px 0;font-size:16px;font-weight:700;text-transform:uppercase;border-radius:10px;cursor:pointer;">
+                    BILI (pasok)
+                </button>
+                <button class="js-display js-btn mode-btn" data-mode="sell"
+                style="flex:1;padding:10px 0;font-size:16px;font-weight:700;text-transform:uppercase;border-radius:10px;cursor:pointer;">
+                BENTA (labas)
+            </button>
+        </div>
+
+        <!-- LCD -->
+        <div class="a-lcd" style="background:var(--lcdBg);border-radius:14px;padding:14px 16px;border:3px solid #0C1811;box-shadow:inset 0 2px 12px rgba(0,0,0,0.6);">
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+                <span class="js-mono" id="lcdMatName" style="font-size:12px;color:var(--lcdDim);text-transform:uppercase;">PUMILI NG ITEM</span>
+                <span class="js-mono" id="lcdUnitPrice" style="font-size:12px;color:var(--lcdDim);">--</span>
+            </div>
+            <div class="js-mono" style="font-size:46px;color:var(--lcdDigit);text-align:right;line-height:1.15;text-shadow:0 0 8px rgba(138,245,163,0.4);">
+                <span id="lcdKilos">0</span><span style="font-size:20px;color:var(--lcdDim);"> kg</span>
+            </div>
+            <div class="js-mono" id="lcdTotal" style="font-size:18px;color:var(--lcdDim);text-align:right;">= ₱0.00</div>
+        </div>
+
+        <!-- chips -->
+        <div class="a-chips mat-grid" id="matGrid"></div>
+
+        <!-- pad -->
+        <div class="a-pad">
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">
+                <button class="js-mono js-btn num-btn" data-key="7" style="padding:13px 0;font-size:22px;border-radius:10px;cursor:pointer;background:var(--card);border:1px solid var(--line);color:var(--ink);">7</button>
+                <button class="js-mono js-btn num-btn" data-key="8" style="padding:13px 0;font-size:22px;border-radius:10px;cursor:pointer;background:var(--card);border:1px solid var(--line);color:var(--ink);">8</button>
+                <button class="js-mono js-btn num-btn" data-key="9" style="padding:13px 0;font-size:22px;border-radius:10px;cursor:pointer;background:var(--card);border:1px solid var(--line);color:var(--ink);">9</button>
+                <button class="js-mono js-btn num-btn" data-key="4" style="padding:13px 0;font-size:22px;border-radius:10px;cursor:pointer;background:var(--card);border:1px solid var(--line);color:var(--ink);">4</button>
+                <button class="js-mono js-btn num-btn" data-key="5" style="padding:13px 0;font-size:22px;border-radius:10px;cursor:pointer;background:var(--card);border:1px solid var(--line);color:var(--ink);">5</button>
+                <button class="js-mono js-btn num-btn" data-key="6" style="padding:13px 0;font-size:22px;border-radius:10px;cursor:pointer;background:var(--card);border:1px solid var(--line);color:var(--ink);">6</button>
+                <button class="js-mono js-btn num-btn" data-key="1" style="padding:13px 0;font-size:22px;border-radius:10px;cursor:pointer;background:var(--card);border:1px solid var(--line);color:var(--ink);">1</button>
+                <button class="js-mono js-btn num-btn" data-key="2" style="padding:13px 0;font-size:22px;border-radius:10px;cursor:pointer;background:var(--card);border:1px solid var(--line);color:var(--ink);">2</button>
+                <button class="js-mono js-btn num-btn" data-key="3" style="padding:13px 0;font-size:22px;border-radius:10px;cursor:pointer;background:var(--card);border:1px solid var(--line);color:var(--ink);">3</button>
+                <button class="js-mono js-btn num-btn" data-key="." style="padding:13px 0;font-size:22px;border-radius:10px;cursor:pointer;background:var(--card);border:1px solid var(--line);color:var(--ink);">.</button>
+                <button class="js-mono js-btn num-btn" data-key="0" style="padding:13px 0;font-size:22px;border-radius:10px;cursor:pointer;background:var(--card);border:1px solid var(--line);color:var(--ink);">0</button>
+                <button class="js-mono js-btn num-btn" data-key="back" style="padding:13px 0;font-size:22px;border-radius:10px;cursor:pointer;background:var(--card);border:1px solid var(--line);color:var(--ink);">⌫</button>
+            </div>
+            <button class="js-display js-btn" id="addToTicketBtn"
+            style="width:100%;margin-top:10px;padding:14px 0;font-size:18px;font-weight:700;text-transform:uppercase;border-radius:12px;border:none;cursor:pointer;background:var(--line);color:var(--muted);">
+            Idagdag sa resibo
+        </button>
+    </div>
+
+    <!-- ticket -->
+    <div class="a-ticket" id="ticketArea">
+        <div style="border:2px dashed var(--line);border-radius:12px;padding:18px 12px;text-align:center;color:var(--muted);font-size:13px;">
+            Walang laman ang resibo. Pumili ng item at i-type ang kilo.
+        </div>
+    </div>
+</div>
+
+<!-- ================= PRESYO ================= -->
+<div id="tabPresyo" style="display:none;max-width:560px;margin:0 auto;">
+
+    <!-- shop settings -->
+    <div style="background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px;margin-bottom:14px;">
+        <div class="js-display" style="font-size:14px;font-weight:700;text-transform:uppercase;color:var(--muted);margin-bottom:8px;">Detalye ng shop (lalabas sa resibo)</div>
+        <input id="settingsShopName" value="JUNKSHOP" placeholder="Pangalan ng shop"
+        style="width:100%;box-sizing:border-box;padding:9px 10px;border-radius:8px;border:1px solid var(--line);background:var(--bg);font-size:14px;margin-bottom:8px;outline:none;color:var(--ink);" />
+        <input id="settingsShopInfo" value="" placeholder="Address / contact no. (optional)"
+        style="width:100%;box-sizing:border-box;padding:9px 10px;border-radius:8px;border:1px solid var(--line);background:var(--bg);font-size:14px;outline:none;color:var(--ink);" />
+        <label style="display:flex;align-items:center;gap:8px;margin-top:10px;font-size:13px;cursor:pointer;">
+            <input type="checkbox" id="settingsAutoPrint" /> I-print agad ang resibo pagkatapos ng bawat transaksyon
+        </label>
+    </div>
+
+    <!-- price grid -->
+    <div style="display:grid;grid-template-columns:1fr 76px 76px 32px;gap:6px;padding:0 4px 6px;">
+        <div class="js-display" style="font-size:13px;font-weight:700;text-transform:uppercase;color:var(--muted);">Item</div>
+        <div class="js-display" style="font-size:13px;font-weight:700;text-transform:uppercase;color:var(--muted);text-align:right;">Bili/kg</div>
+        <div class="js-display" style="font-size:13px;font-weight:700;text-transform:uppercase;color:var(--muted);text-align:right;">Benta/kg</div>
+        <div></div>
+    </div>
+    <div style="background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden;" id="priceList"></div>
+
+    <button class="js-display js-btn" id="addMaterialBtn"
+    style="width:100%;margin-top:10px;padding:12px 0;font-size:16px;font-weight:700;text-transform:uppercase;border-radius:10px;border:2px dashed var(--line);background:transparent;color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;">
+    ＋ Dagdag na item
+</button>
+
+<div style="display:flex;gap:8px;margin-top:18px;">
+    <button class="js-btn" id="resetPricesBtn" style="flex:1;padding:10px 0;font-size:13px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;">
+        ⟳ Ibalik ang default
+    </button>
+    <button class="js-btn" id="clearAllBtn" style="flex:1;padding:10px 0;font-size:13px;border-radius:10px;border:1px solid var(--rust);background:var(--card);color:var(--rust);cursor:pointer;">
+        Burahin ang talaan
+    </button>
+</div>
+<div id="confirmClearArea" style="display:none;margin-top:10px;padding:12px;border-radius:10px;background:#FBEDE9;border:1px solid var(--rust);">
+    <div style="font-size:13px;margin-bottom:8px;">Buburahin ang lahat ng transaksyon. Hindi na ito maibabalik.</div>
+    <div style="display:flex;gap:8px;">
+        <button class="js-btn" id="confirmClearYes" style="flex:1;padding:8px;border-radius:8px;border:none;background:var(--rust);color:#fff;cursor:pointer;font-weight:700;">Oo, burahin</button>
+        <button class="js-btn" id="confirmClearNo" style="flex:1;padding:8px;border-radius:8px;border:1px solid var(--line);background:var(--card);cursor:pointer;">Huwag</button>
+    </div>
+</div>
+</div>
+
+<!-- ================= TALAAN ================= -->
+<div id="tabTalaan" style="display:none;max-width:640px;margin:0 auto;">
+    <div id="historyList"></div>
+</div>
+
+<!-- ================= ULAT ================= -->
+<div id="tabUlat" style="display:none;max-width:720px;margin:0 auto;">
+    <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;" id="periodBtns"></div>
+    <div class="rep-grid" style="margin-bottom:14px;" id="reportStats"></div>
+    <div id="reportRows"></div>
+    <button class="js-display js-btn" id="printReportBtn"
+    style="width:100%;margin-top:14px;padding:14px 0;font-size:17px;font-weight:700;text-transform:uppercase;border-radius:12px;border:none;cursor:pointer;background:var(--line);color:var(--muted);display:flex;align-items:center;justify-content:center;gap:8px;">
+    🖨 I-print ang ulat
+</button>
+</div>
+
+</div><!-- /js-wrap -->
+
+<!-- TOAST -->
+<div id="toast" style="display:none;position:fixed;bottom:84px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 18px;border-radius:999px;font-size:15px;font-weight:700;white-space:nowrap;box-shadow:0 4px 14px rgba(0,0,0,0.25);z-index:50;font-family:'Saira Condensed',system-ui,sans-serif;letter-spacing:0.03em;"></div>
+
+<!-- NAV -->
+<nav style="position:fixed;bottom:0;left:0;right:0;background:var(--card);border-top:1px solid var(--line);z-index:40;">
+    <div style="max-width:640px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr 1fr 1fr;">
+        <button class="nav-btn" data-tab="timbang" style="padding:10px 0 12px;background:none;border:none;cursor:pointer;color:var(--amberDark);">
+            <svg style="display:block;margin:0 auto;" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4M12 22v-4M4 12H2M6 12H4M20 12h-2M22 12h-2M19.07 4.93l-2.83 2.83M4.93 19.07l2.83-2.83M19.07 19.07l-2.83-2.83M4.93 4.93l2.83 2.83"/><circle cx="12" cy="12" r="4"/></svg>
+            <div class="js-display" style="font-size:12px;font-weight:700;text-transform:uppercase;margin-top:2px;">Timbang</div>
+        </button>
+        <button class="nav-btn" data-tab="presyo" style="padding:10px 0 12px;background:none;border:none;cursor:pointer;color:var(--muted);">
+            <svg style="display:block;margin:0 auto;" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4M12 22v-4M4 12H2M6 12H4M20 12h-2M22 12h-2M19.07 4.93l-2.83 2.83M4.93 19.07l2.83-2.83M19.07 19.07l-2.83-2.83M4.93 4.93l2.83 2.83"/><circle cx="12" cy="12" r="4"/></svg>
+            <div class="js-display" style="font-size:12px;font-weight:700;text-transform:uppercase;margin-top:2px;">Presyo</div>
+        </button>
+        <button class="nav-btn" data-tab="talaan" style="padding:10px 0 12px;background:none;border:none;cursor:pointer;color:var(--muted);">
+            <svg style="display:block;margin:0 auto;" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/><line x1="12" y1="11" x2="12" y2="17"/><line x1="9" y1="14" x2="15" y2="14"/></svg>
+            <div class="js-display" style="font-size:12px;font-weight:700;text-transform:uppercase;margin-top:2px;">Talaan</div>
+        </button>
+        <button class="nav-btn" data-tab="ulat" style="padding:10px 0 12px;background:none;border:none;cursor:pointer;color:var(--muted);">
+            <svg style="display:block;margin:0 auto;" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+            <div class="js-display" style="font-size:12px;font-weight:700;text-transform:uppercase;margin-top:2px;">Ulat</div>
+        </button>
+    </div>
+</nav>
+</div><!-- /screen-ui -->
+
+<script>
+    (function() {
+        'use strict';
+
+        // ---------- CONSTANTS ----------
+        const DEFAULT_MATERIALS = [
+            { id: "bakal", name: "Bakal", buy: 10, sell: 13 },
+            { id: "tanso", name: "Tanso", buy: 350, sell: 380 },
+            { id: "aluminum", name: "Aluminum", buy: 45, sell: 55 },
+            { id: "lata", name: "Lata", buy: 7, sell: 9 },
+            { id: "stainless", name: "Stainless", buy: 35, sell: 45 },
+            { id: "yero", name: "Yero", buy: 7, sell: 9 },
+            { id: "karton", name: "Karton", buy: 4, sell: 5.5 },
+            { id: "papel", name: "Papel (puti)", buy: 6, sell: 8 },
+            { id: "plastik", name: "Plastik (assorted)", buy: 8, sell: 11 },
+            { id: "bote", name: "Bote", buy: 1.5, sell: 2.5 },
+            { id: "baterya", name: "Baterya", buy: 35, sell: 42 },
+        ];
+
+        const DEFAULT_SETTINGS = { shopName: "JUNKSHOP", shopInfo: "", autoPrint: false };
+        const STORE_KEY = "junkshop:data";
+
+        const PERIODS = [
+            { k: "day", label: "Ngayon" },
+            { k: "week", label: "7 Araw" },
+            { k: "month", label: "Buwan" },
+            { k: "all", label: "Lahat" },
+        ];
+        const periodLabel = {
+            day: "Ulat Ngayong Araw",
+            week: "Ulat — Huling 7 Araw",
+            month: "Ulat Ngayong Buwan",
+            all: "Ulat — Lahat"
+        };
+
+        const peso = (n) => "₱" + (Number(n) || 0).toLocaleString("en-PH", { minimumFractionDigits: 2,
+            maximumFractionDigits: 2 });
+        const num = (n) => (Number(n) || 0).toLocaleString("en-PH", { maximumFractionDigits: 2 });
+        const kg = (n) => num(n) + " kg";
+        const dateKey = (ts) => new Date(ts).toLocaleDateString("en-PH", { year: "numeric", month: "short",
+            day: "numeric", weekday: "short" });
+        const timeStr = (ts) => new Date(ts).toLocaleTimeString("en-PH", { hour: "numeric", minute: "2-digit" });
+        const fullStamp = (ts) => new Date(ts).toLocaleString("en-PH", { month: "short", day: "numeric",
+            year: "numeric", hour: "numeric", minute: "2-digit" });
+        const startOfDay = (d) => { const x = new Date(d);
+            x.setHours(0, 0, 0, 0); return x; };
+
+        // ---------- STATE ----------
+        let state = {
+            materials: JSON.parse(JSON.stringify(DEFAULT_MATERIALS)),
+            transactions: [],
+            settings: JSON.parse(JSON.stringify(DEFAULT_SETTINGS)),
+            tab: 'timbang',
+            mode: 'buy',
+            selectedId: null,
+            kilosStr: '',
+            ticket: [],
+            toast: null,
+            confirmClear: false,
+            period: 'day',
+            printJob: null,
+            loading: true,
+        };
+
+        let saveTimer = null;
+        let toastTimer = null;
+
+        // ---------- DOM refs ----------
+        const $ = (s) => document.querySelector(s);
+        const $$ = (s) => document.querySelectorAll(s);
+
+        const tabTimbang = $('#tabTimbang');
+        const tabPresyo = $('#tabPresyo');
+        const tabTalaan = $('#tabTalaan');
+        const tabUlat = $('#tabUlat');
+        const navBtns = $$('.nav-btn');
+        const shopNameDisplay = $('#shopNameDisplay');
+        const headerDate = $('#headerDate');
+        const lcdMatName = $('#lcdMatName');
+        const lcdUnitPrice = $('#lcdUnitPrice');
+        const lcdKilos = $('#lcdKilos');
+        const lcdTotal = $('#lcdTotal');
+        const matGrid = $('#matGrid');
+        const addToTicketBtn = $('#addToTicketBtn');
+        const ticketArea = $('#ticketArea');
+        const toastEl = $('#toast');
+        const priceList = $('#priceList');
+        const settingsShopName = $('#settingsShopName');
+        const settingsShopInfo = $('#settingsShopInfo');
+        const settingsAutoPrint = $('#settingsAutoPrint');
+        const addMaterialBtn = $('#addMaterialBtn');
+        const resetPricesBtn = $('#resetPricesBtn');
+        const clearAllBtn = $('#clearAllBtn');
+        const confirmClearArea = $('#confirmClearArea');
+        const confirmClearYes = $('#confirmClearYes');
+        const confirmClearNo = $('#confirmClearNo');
+        const historyList = $('#historyList');
+        const periodBtns = $('#periodBtns');
+        const reportStats = $('#reportStats');
+        const reportRows = $('#reportRows');
+        const printReportBtn = $('#printReportBtn');
+        const printArea = $('#printArea');
+
+        // ---------- HELPERS ----------
+        function getSelected() {
+            return state.materials.find(m => m.id === state.selectedId) || null;
+        }
+
+        function getKilos() {
+            return parseFloat(state.kilosStr) || 0;
+        }
+
+        function getUnitPrice() {
+            const s = getSelected();
+            if (!s) return 0;
+            return state.mode === 'buy' ? s.buy : s.sell;
+        }
+
+        function getLineTotal() {
+            return getKilos() * getUnitPrice();
+        }
+
+        function getTicketTotal() {
+            return state.ticket.reduce((s, it) => s + it.total, 0);
+        }
+
+        function showToast(msg, bad) {
+            if (toastTimer) clearTimeout(toastTimer);
+            toastEl.textContent = msg;
+            toastEl.style.background = bad ? 'var(--rust)' : 'var(--ink)';
+            toastEl.style.display = 'block';
+            toastEl.className = 'toast-enter';
+            toastTimer = setTimeout(() => {
+                toastEl.style.display = 'none';
+                toastTimer = null;
+            }, 2200);
+        }
+
+        // ---------- STORAGE ----------
+        function loadFromStorage() {
+            try {
+                const raw = localStorage.getItem(STORE_KEY);
+                if (!raw) return false;
+                const data = JSON.parse(raw);
+                if (Array.isArray(data.materials) && data.materials.length) state.materials = data.materials;
+                if (Array.isArray(data.transactions)) state.transactions = data.transactions;
+                if (data.settings) state.settings = { ...DEFAULT_SETTINGS, ...data.settings };
+                return true;
+            } catch (_) { return false; }
+        }
+
+        function saveToStorage() {
+            try {
+                localStorage.setItem(STORE_KEY, JSON.stringify({
+                    materials: state.materials,
+                    transactions: state.transactions,
+                    settings: state.settings
+                }));
+            } catch (_) { /* ignore */ }
+        }
+
+        function debounceSave() {
+            if (saveTimer) clearTimeout(saveTimer);
+            saveTimer = setTimeout(() => { saveToStorage();
+                saveTimer = null; }, 400);
+        }
+
+        // ---------- PERIOD FILTER ----------
+        function filterByPeriod(p) {
+            const now = new Date();
+            return state.transactions.filter(tx => {
+                const d = new Date(tx.ts);
+                if (p === 'day') return startOfDay(d).getTime() === startOfDay(now).getTime();
+                if (p === 'week') return d >= new Date(startOfDay(now).getTime() - 6 * 86400000);
+                if (p === 'month') return d.getMonth() === now.getMonth() && d.getFullYear() === now
+                .getFullYear();
+                return true;
+            });
+        }
+
+        function aggregate(txs) {
+            const rows = {};
+            let buyCash = 0,
+                sellCash = 0,
+                kIn = 0,
+                kOut = 0;
+            for (const tx of txs) {
+                for (const it of tx.items) {
+                    const r = (rows[it.name] = rows[it.name] || { name: it.name, kIn: 0, pIn: 0, kOut: 0,
+                        pOut: 0 });
+                    if (tx.type === 'buy') { r.kIn += it.kilos;
+                        r.pIn += it.total;
+                        buyCash += it.total;
+                        kIn += it.kilos; } else { r.kOut += it.kilos;
+                        r.pOut += it.total;
+                        sellCash += it.total;
+                        kOut += it.kilos; }
+                }
+            }
+            return {
+                rows: Object.values(rows).sort((a, b) => b.pIn + b.pOut - (a.pIn + a.pOut)),
+                buyCash,
+                sellCash,
+                kIn,
+                kOut,
+                count: txs.length
+            };
+        }
+
+        // ---------- RENDER: TIMBANG ----------
+        function renderTimbang() {
+            // mode buttons
+            const modeBtns = $$('.mode-btn');
+            modeBtns.forEach(btn => {
+                const m = btn.dataset.mode;
+                const active = m === state.mode;
+                const color = m === 'buy' ? 'var(--amber)' : 'var(--green)';
+                btn.style.border = '2px solid ' + (active ? color : 'var(--line)');
+                btn.style.background = active ? color : 'var(--card)';
+                btn.style.color = active ? '#fff' : 'var(--muted)';
+            });
+
+            // LCD
+            const sel = getSelected();
+            lcdMatName.textContent = sel ? sel.name : 'PUMILI NG ITEM';
+            lcdUnitPrice.textContent = sel ? peso(getUnitPrice()) + '/kg' : '--';
+            lcdKilos.textContent = state.kilosStr || '0';
+            const total = getLineTotal();
+            lcdTotal.textContent = '= ' + peso(total);
+            lcdTotal.style.color = total > 0 ? 'var(--lcdDigit)' : 'var(--lcdDim)';
+
+            // chips
+            matGrid.innerHTML = '';
+            state.materials.forEach(m => {
+                const active = state.selectedId === m.id;
+                const btn = document.createElement('button');
+                btn.className = 'js-btn';
+                btn.dataset.matId = m.id;
+                btn.style.cssText =
+                    `padding:10px 4px;border-radius:10px;cursor:pointer;border:2px solid ${active ? 'var(--amber)' : 'var(--line)'};background:${active ? '#FDF3E3' : 'var(--card)'};`;
+                btn.innerHTML =
+                    `<div class="js-display" style="font-size:14px;font-weight:700;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${m.name}</div><div class="js-mono" style="font-size:11px;color:var(--muted);">${peso(state.mode === 'buy' ? m.buy : m.sell)}</div>`;
+                btn.addEventListener('click', () => {
+                    state.selectedId = m.id;
+                    renderTimbang();
+                });
+                matGrid.appendChild(btn);
+            });
+
+            // add to ticket button
+            const canAdd = sel && getKilos() > 0;
+            addToTicketBtn.disabled = !canAdd;
+            addToTicketBtn.style.background = canAdd ? 'var(--ink)' : 'var(--line)';
+            addToTicketBtn.style.color = canAdd ? '#fff' : 'var(--muted)';
+            addToTicketBtn.style.cursor = canAdd ? 'pointer' : 'default';
+
+            // ticket
+            renderTicket();
+        }
+
+        function renderTicket() {
+            if (state.ticket.length === 0) {
+                ticketArea.innerHTML =
+                    `<div style="border:2px dashed var(--line);border-radius:12px;padding:18px 12px;text-align:center;color:var(--muted);font-size:13px;">Walang laman ang resibo. Pumili ng item at i-type ang kilo.</div>`;
+                return;
+            }
+            let html = `<div style="background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden;">`;
+            state.ticket.forEach(it => {
+                html += `
+                    <div style="display:flex;align-items:center;gap:8px;padding:10px 12px;border-bottom:1px dashed var(--line);">
+                        <div style="flex:1;">
+                            <div class="js-display" style="font-weight:700;text-transform:uppercase;font-size:15px;">${it.name}</div>
+                            <div class="js-mono" style="font-size:12px;color:var(--muted);">${kg(it.kilos)} × ${peso(it.price)}</div>
+                        </div>
+                        <div class="js-mono" style="font-size:15px;">${peso(it.total)}</div>
+                        <button class="ticket-remove" data-uid="${it.uid}" style="background:none;border:none;cursor:pointer;color:var(--rust);padding:4px;">✕</button>
+                    </div>
+                `;
+            });
+            const total = getTicketTotal();
+            const color = state.mode === 'buy' ? 'var(--amber)' : 'var(--green)';
+            const label = state.mode === 'buy' ? 'Bayaran' : 'Benta';
+            html += `
+                <button class="js-display js-btn" id="completeTicketBtn" style="width:100%;padding:15px 0;font-size:19px;font-weight:700;text-transform:uppercase;border:none;cursor:pointer;color:#fff;background:${color};">${label} — ${peso(total)}</button>
+            </div>`;
+            ticketArea.innerHTML = html;
+
+            // event listeners
+            ticketArea.querySelectorAll('.ticket-remove').forEach(el => {
+                el.addEventListener('click', () => {
+                    const uid = Number(el.dataset.uid);
+                    state.ticket = state.ticket.filter(x => x.uid !== uid);
+                    renderTimbang();
+                });
+            });
+            const completeBtn = ticketArea.querySelector('#completeTicketBtn');
+            if (completeBtn) {
+                completeBtn.addEventListener('click', completeTicket);
+            }
+        }
+
+        // ---------- TICKET ACTIONS ----------
+        function addToTicket() {
+            const sel = getSelected();
+            const kilos = getKilos();
+            if (!sel || kilos <= 0) return;
+            const price = getUnitPrice();
+            state.ticket.push({
+                uid: Date.now() + Math.random() * 1000,
+                matId: sel.id,
+                name: sel.name,
+                kilos: kilos,
+                price: price,
+                total: kilos * price
+            });
+            state.kilosStr = '';
+            // keep selectedId
+            renderTimbang();
+        }
+
+        function completeTicket() {
+            if (state.ticket.length === 0) return;
+            const tx = {
+                id: 'tx_' + Date.now(),
+                type: state.mode,
+                items: state.ticket.map(({ uid, ...rest }) => rest),
+                total: getTicketTotal(),
+                ts: new Date().toISOString(),
+            };
+            state.transactions = [tx, ...state.transactions];
+            state.ticket = [];
+            debounceSave();
+            showToast(state.mode === 'buy' ? 'Bayaran ang suki: ' + peso(tx.total) : 'Benta naitala: ' + peso(tx.total));
+            renderTimbang();
+            // auto-print
+            if (state.settings.autoPrint) {
+                triggerPrint('receipt', tx);
+            }
+        }
+
+        // ---------- RENDER: PRESYO ----------
+        function renderPresyo() {
+            // settings
+            settingsShopName.value = state.settings.shopName || 'JUNKSHOP';
+            settingsShopInfo.value = state.settings.shopInfo || '';
+            settingsAutoPrint.checked = !!state.settings.autoPrint;
+
+            // price list
+            priceList.innerHTML = '';
+            state.materials.forEach((m, i) => {
+                const div = document.createElement('div');
+                div.style.cssText =
+                    `display:grid;grid-template-columns:1fr 76px 76px 32px;gap:6px;align-items:center;padding:8px 10px;border-top:${i ? '1px solid var(--line)' : 'none'};`;
+                div.innerHTML = `
+                    <input class="mat-name-input" data-id="${m.id}" value="${m.name}" style="border:none;background:transparent;font-size:14px;font-weight:600;color:var(--ink);min-width:0;outline:none;" />
+                    <input class="mat-price-input" data-id="${m.id}" data-field="buy" type="number" inputmode="decimal" value="${m.buy}" style="width:100%;box-sizing:border-box;text-align:right;font-size:14px;padding:5px 6px;border-radius:6px;border:1px solid var(--line);background:var(--bg);color:var(--ink);outline:none;" />
+                    <input class="mat-price-input" data-id="${m.id}" data-field="sell" type="number" inputmode="decimal" value="${m.sell}" style="width:100%;box-sizing:border-box;text-align:right;font-size:14px;padding:5px 6px;border-radius:6px;border:1px solid var(--line);background:var(--bg);color:var(--ink);outline:none;" />
+                    <button class="mat-remove-btn" data-id="${m.id}" style="background:none;border:none;cursor:pointer;color:var(--rust);padding:2px;">🗑</button>
+                `;
+                priceList.appendChild(div);
+            });
+
+            // event listeners - name
+            priceList.querySelectorAll('.mat-name-input').forEach(el => {
+                el.addEventListener('input', () => {
+                    const id = el.dataset.id;
+                    const m = state.materials.find(x => x.id === id);
+                    if (m) { m.name = el.value;
+                        debounceSave();
+                        renderTimbang(); }
+                });
+            });
+            priceList.querySelectorAll('.mat-price-input').forEach(el => {
+                el.addEventListener('input', () => {
+                    const id = el.dataset.id;
+                    const field = el.dataset.field;
+                    const m = state.materials.find(x => x.id === id);
+                    if (m) {
+                        const val = parseFloat(el.value);
+                        m[field] = isNaN(val) ? 0 : val;
+                        debounceSave();
+                        renderTimbang();
+                    }
+                });
+            });
+            priceList.querySelectorAll('.mat-remove-btn').forEach(el => {
+                el.addEventListener('click', () => {
+                    const id = el.dataset.id;
+                    state.materials = state.materials.filter(m => m.id !== id);
+                    if (state.selectedId === id) state.selectedId = null;
+                    debounceSave();
+                    renderPresyo();
+                    renderTimbang();
+                });
+            });
+
+            // confirm clear
+            confirmClearArea.style.display = state.confirmClear ? 'block' : 'none';
+        }
+
+        // ---------- RENDER: TALAAN ----------
+        function renderTalaan() {
+            const groups = {};
+            for (const tx of state.transactions) {
+                const k = dateKey(tx.ts);
+                if (!groups[k]) groups[k] = [];
+                groups[k].push(tx);
+            }
+
+            if (state.transactions.length === 0) {
+                historyList.innerHTML = `
+                    <div style="text-align:center;padding:60px 20px;color:var(--muted);">
+                        <svg width="36" height="36" style="display:block;margin:0 auto 10px;opacity:0.4;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 8v8M8 12h8"/></svg>
+                        <div class="js-display" style="font-size:18px;font-weight:700;text-transform:uppercase;">Walang talaan pa</div>
+                        <div style="font-size:13px;margin-top:4px;">Magtimbang sa unang tab para magsimula.</div>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = '';
+            for (const [day, txs] of Object.entries(groups)) {
+                const bought = txs.filter(t => t.type === 'buy').reduce((s, t) => s + t.total, 0);
+                const sold = txs.filter(t => t.type === 'sell').reduce((s, t) => s + t.total, 0);
+                const kilosIn = txs.filter(t => t.type === 'buy').reduce((s, t) => s + t.items.reduce((a, i) => a + i.kilos,
+                    0), 0);
+
+                html += `<div style="margin-bottom:18px;">
+                    <div class="js-display" style="font-size:15px;font-weight:700;text-transform:uppercase;padding:0 4px 6px;">${day}</div>
+                    <div class="sum-grid" style="margin-bottom:8px;">
+                        <div style="background:var(--card);border:1px solid var(--line);border-radius:10px;padding:8px 10px;">
+                            <div style="font-size:11px;color:var(--muted);text-transform:uppercase;">Nabili</div>
+                            <div class="js-mono" style="font-size:14px;color:var(--amberDark);">${peso(bought)}</div>
+                        </div>
+                        <div style="background:var(--card);border:1px solid var(--line);border-radius:10px;padding:8px 10px;">
+                            <div style="font-size:11px;color:var(--muted);text-transform:uppercase;">Nabenta</div>
+                            <div class="js-mono" style="font-size:14px;color:var(--green);">${peso(sold)}</div>
+                        </div>
+                        <div style="background:var(--card);border:1px solid var(--line);border-radius:10px;padding:8px 10px;">
+                            <div style="font-size:11px;color:var(--muted);text-transform:uppercase;">Kilo pasok</div>
+                            <div class="js-mono" style="font-size:14px;color:var(--ink);">${kg(kilosIn)}</div>
+                        </div>
+                    </div>
+                    <div style="background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden;">`;
+
+                txs.forEach((tx, i) => {
+                    const color = tx.type === 'buy' ? 'var(--amberDark)' : 'var(--green)';
+                    const label = tx.type === 'buy' ? 'Bili' : 'Benta';
+                    html += `
+                        <div style="display:flex;align-items:center;gap:8px;padding:10px 12px;border-top:${i ? '1px solid var(--line)' : 'none'};">
+                            <div style="flex:1;">
+                                <div style="display:flex;justify-content:space-between;align-items:baseline;">
+                                    <span class="js-display" style="font-size:14px;font-weight:700;text-transform:uppercase;color:${color};">${label} · ${timeStr(tx.ts)}</span>
+                                    <span class="js-mono" style="font-size:15px;">${peso(tx.total)}</span>
+                                </div>
+                                <div style="font-size:12px;color:var(--muted);margin-top:2px;">${tx.items.map(it => it.name + ' ' + kg(it.kilos)).join(' · ')}</div>
+                            </div>
+                            <button class="print-receipt-btn" data-txid="${tx.id}" style="background:none;border:1px solid var(--line);border-radius:8px;cursor:pointer;color:var(--muted);padding:6px 8px;">🖨</button>
+                        </div>
+                    `;
+                });
+
+                html += `</div></div>`;
+            }
+            historyList.innerHTML = html;
+
+            // print receipt buttons
+            historyList.querySelectorAll('.print-receipt-btn').forEach(el => {
+                el.addEventListener('click', () => {
+                    const id = el.dataset.txid;
+                    const tx = state.transactions.find(t => t.id === id);
+                    if (tx) triggerPrint('receipt', tx);
+                });
+            });
+        }
+
+        // ---------- RENDER: ULAT ----------
+        function renderUlat() {
+            // period buttons
+            periodBtns.innerHTML = '';
+            PERIODS.forEach(p => {
+                const active = state.period === p.k;
+                const btn = document.createElement('button');
+                btn.className = 'js-display js-btn';
+                btn.dataset.period = p.k;
+                btn.style.cssText =
+                    `flex:1;min-width:70px;padding:9px 0;font-size:15px;font-weight:700;text-transform:uppercase;border-radius:10px;cursor:pointer;border:2px solid ${active ? 'var(--ink)' : 'var(--line)'};background:${active ? 'var(--ink)' : 'var(--card)'};color:${active ? '#fff' : 'var(--muted)'};`;
+                btn.textContent = p.label;
+                btn.addEventListener('click', () => {
+                    state.period = p.k;
+                    renderUlat();
+                });
+                periodBtns.appendChild(btn);
+            });
+
+            const txs = filterByPeriod(state.period);
+            const agg = aggregate(txs);
+
+            // stats
+            const stats = [
+                { label: 'Nabili (labas)', val: peso(agg.buyCash), col: 'var(--amberDark)' },
+                { label: 'Nabenta (pasok)', val: peso(agg.sellCash), col: 'var(--green)' },
+                { label: 'Gross tubo', val: peso(agg.sellCash - agg.buyCash), col: agg.sellCash - agg.buyCash >=
+                        0 ? 'var(--green)' : 'var(--rust)' },
+                { label: 'Kilo pasok', val: kg(agg.kIn), col: 'var(--ink)' },
+                { label: 'Kilo labas', val: kg(agg.kOut), col: 'var(--ink)' },
+                { label: 'Transaksyon', val: String(agg.count), col: 'var(--ink)' },
+            ];
+            reportStats.innerHTML = '';
+            stats.forEach(s => {
+                const div = document.createElement('div');
+                div.style.cssText =
+                    'background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px 12px;';
+                div.innerHTML =
+                    `<div style="font-size:11px;color:var(--muted);text-transform:uppercase;">${s.label}</div><div class="js-mono" style="font-size:17px;color:${s.col};">${s.val}</div>`;
+                reportStats.appendChild(div);
+            });
+
+            // rows
+            if (agg.rows.length === 0) {
+                reportRows.innerHTML =
+                    `<div style="border:2px dashed var(--line);border-radius:12px;padding:24px 12px;text-align:center;color:var(--muted);font-size:13px;">Walang transaksyon sa panahong ito.</div>`;
+            } else {
+                let html =
+                    `<div style="background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden;">
+                    <div style="display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr 1fr;gap:4px;padding:9px 12px;background:var(--bg);border-bottom:1px solid var(--line);">
+                        <div class="js-display" style="font-size:12px;font-weight:700;text-transform:uppercase;color:var(--muted);">Item</div>
+                        <div class="js-display" style="font-size:12px;font-weight:700;text-transform:uppercase;color:var(--muted);text-align:right;">Kilo bili</div>
+                        <div class="js-display" style="font-size:12px;font-weight:700;text-transform:uppercase;color:var(--muted);text-align:right;">₱ Bili</div>
+                        <div class="js-display" style="font-size:12px;font-weight:700;text-transform:uppercase;color:var(--muted);text-align:right;">Kilo benta</div>
+                        <div class="js-display" style="font-size:12px;font-weight:700;text-transform:uppercase;color:var(--muted);text-align:right;">₱ Benta</div>
+                    </div>`;
+                agg.rows.forEach((r, i) => {
+                    html += `
+                        <div style="display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr 1fr;gap:4px;padding:9px 12px;border-top:${i ? '1px solid var(--line)' : 'none'};">
+                            <div style="font-size:13px;font-weight:600;">${r.name}</div>
+                            <div class="js-mono" style="font-size:13px;text-align:right;">${num(r.kIn)}</div>
+                            <div class="js-mono" style="font-size:13px;text-align:right;color:var(--amberDark);">${num(r.pIn)}</div>
+                            <div class="js-mono" style="font-size:13px;text-align:right;">${num(r.kOut)}</div>
+                            <div class="js-mono" style="font-size:13px;text-align:right;color:var(--green);">${num(r.pOut)}</div>
+                        </div>
+                    `;
+                });
+                html += `</div>`;
+                reportRows.innerHTML = html;
+            }
+
+            // print button
+            const canPrint = agg.count > 0;
+            printReportBtn.style.background = canPrint ? 'var(--ink)' : 'var(--line)';
+            printReportBtn.style.color = canPrint ? '#fff' : 'var(--muted)';
+            printReportBtn.style.cursor = canPrint ? 'pointer' : 'default';
+            printReportBtn.disabled = !canPrint;
+        }
+
+        // ---------- PRINT ----------
+        function triggerPrint(kind, data) {
+            if (kind === 'receipt') {
+                const tx = data;
+                const shopName = state.settings.shopName || 'JUNKSHOP';
+                const shopInfo = state.settings.shopInfo || '';
+                let html = `<div class="receipt">
+                    <div style="text-align:center;font-weight:700;">${shopName}</div>
+                    ${shopInfo ? `<div style="text-align:center;">${shopInfo}</div>` : ''}
+                    <div style="text-align:center;">${fullStamp(tx.ts)}</div>
+                    <div style="text-align:center;">${tx.type === 'buy' ? '* RESIBO NG BILI *' : '* RESIBO NG BENTA *'}</div>
+                    <div>--------------------------------</div>`;
+                tx.items.forEach(it => {
+                    html +=
+                        `<div style="display:flex;justify-content:space-between;"><span>${it.name} ${num(it.kilos)}kg x ${num(it.price)}</span><span>${num(it.total)}</span></div>`;
+                });
+                html += `
+                    <div>--------------------------------</div>
+                    <div style="display:flex;justify-content:space-between;font-weight:700;"><span>TOTAL</span><span>${peso(tx.total)}</span></div>
+                    <div>--------------------------------</div>
+                    <div style="text-align:center;">Salamat po!</div>
+                </div>`;
+                printArea.innerHTML = html;
+                setTimeout(() => window.print(), 200);
+            } else if (kind === 'report') {
+                const txs = data.txs || filterByPeriod(state.period);
+                const agg = data.agg || aggregate(txs);
+                const shopName = state.settings.shopName || 'JUNKSHOP';
+                const shopInfo = state.settings.shopInfo || '';
+                const pLabel = periodLabel[state.period] || 'Ulat';
+                let html = `<div class="report-doc">
+                    <h2 style="margin:0 0 2px;">${shopName}</h2>
+                    ${shopInfo ? `<div>${shopInfo}</div>` : ''}
+                    <h3 style="margin:8px 0 2px;">${pLabel}</h3>
+                    <div style="margin-bottom:10px;">Na-print: ${fullStamp(new Date())}</div>
+                    <table>
+                        <thead><tr><th>Item</th><th>Kilo Bili</th><th>₱ Bili</th><th>Kilo Benta</th><th>₱ Benta</th></tr></thead>
+                        <tbody>`;
+                agg.rows.forEach(r => {
+                    html +=
+                        `<tr><td>${r.name}</td><td>${num(r.kIn)}</td><td>${num(r.pIn)}</td><td>${num(r.kOut)}</td><td>${num(r.pOut)}</td></tr>`;
+                });
+                html += `
+                        <tr style="font-weight:700;"><td>TOTAL</td><td>${num(agg.kIn)}</td><td>${num(agg.buyCash)}</td><td>${num(agg.kOut)}</td><td>${num(agg.sellCash)}</td></tr>
+                    </tbody></table>
+                    <div style="margin-top:10px;">
+                        <div>Bilang ng transaksyon: ${agg.count}</div>
+                        <div>Perang lumabas (bili): ${peso(agg.buyCash)}</div>
+                        <div>Perang pumasok (benta): ${peso(agg.sellCash)}</div>
+                        <div style="font-weight:700;">Gross na tubo: ${peso(agg.sellCash - agg.buyCash)}</div>
+                    </div>
+                </div>`;
+                printArea.innerHTML = html;
+                setTimeout(() => window.print(), 200);
+            }
+        }
+
+        // ---------- TAB SWITCHING ----------
+        function switchTab(tab) {
+            state.tab = tab;
+            const tabs = { timbang: tabTimbang, presyo: tabPresyo, talaan: tabTalaan, ulat: tabUlat };
+            Object.keys(tabs).forEach(k => {
+                tabs[k].style.display = k === tab ? '' : 'none';
+            });
+            navBtns.forEach(btn => {
+                const t = btn.dataset.tab;
+                btn.style.color = t === tab ? 'var(--amberDark)' : 'var(--muted)';
+            });
+            if (tab === 'timbang') renderTimbang();
+            if (tab === 'presyo') renderPresyo();
+            if (tab === 'talaan') renderTalaan();
+            if (tab === 'ulat') renderUlat();
+        }
+
+        // ---------- INIT ----------
+        function init() {
+            // load
+            const hasData = loadFromStorage();
+            state.loading = false;
+
+            // header date
+            headerDate.textContent = new Date().toLocaleDateString('en-PH', { month: 'short', day: 'numeric',
+                year: 'numeric' });
+
+            // shop name display
+            shopNameDisplay.textContent = state.settings.shopName || 'JUNKSHOP';
+
+            // nav
+            navBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    switchTab(btn.dataset.tab);
+                });
+            });
+
+            // mode buttons
+            $$('.mode-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    state.mode = btn.dataset.mode;
+                    state.selectedId = null;
+                    state.kilosStr = '';
+                    state.ticket = [];
+                    renderTimbang();
+                });
+            });
+
+            // numeric pad
+            $$('.num-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const key = btn.dataset.key;
+                    if (key === 'back') {
+                        state.kilosStr = state.kilosStr.slice(0, -1);
+                    } else if (key === '.') {
+                        if (!state.kilosStr.includes('.')) {
+                            state.kilosStr = (state.kilosStr || '0') + '.';
+                        }
+                    } else {
+                        const s = state.kilosStr;
+                        if (s === '0') state.kilosStr = key;
+                        else if (s.length < 8) state.kilosStr = s + key;
+                    }
+                    renderTimbang();
+                });
+            });
+
+            // add to ticket
+            addToTicketBtn.addEventListener('click', addToTicket);
+
+            // settings inputs
+            settingsShopName.addEventListener('input', () => {
+                state.settings.shopName = settingsShopName.value || 'JUNKSHOP';
+                shopNameDisplay.textContent = state.settings.shopName;
+                debounceSave();
+            });
+            settingsShopInfo.addEventListener('input', () => {
+                state.settings.shopInfo = settingsShopInfo.value;
+                debounceSave();
+            });
+            settingsAutoPrint.addEventListener('change', () => {
+                state.settings.autoPrint = settingsAutoPrint.checked;
+                debounceSave();
+            });
+
+            // add material
+            addMaterialBtn.addEventListener('click', () => {
+                state.materials.push({ id: 'mat_' + Date.now(), name: 'Bagong item', buy: 0, sell: 0 });
+                debounceSave();
+                renderPresyo();
+                renderTimbang();
+            });
+
+            // reset prices
+            resetPricesBtn.addEventListener('click', () => {
+                state.materials = JSON.parse(JSON.stringify(DEFAULT_MATERIALS));
+                state.selectedId = null;
+                debounceSave();
+                renderPresyo();
+                renderTimbang();
+                showToast('Naibalik ang default na presyo');
+            });
+
+            // clear all
+            clearAllBtn.addEventListener('click', () => {
+                state.confirmClear = true;
+                renderPresyo();
+            });
+            confirmClearYes.addEventListener('click', () => {
+                state.transactions = [];
+                state.confirmClear = false;
+                debounceSave();
+                renderPresyo();
+                renderTalaan();
+                renderUlat();
+                showToast('Nabura ang lahat ng talaan');
+            });
+            confirmClearNo.addEventListener('click', () => {
+                state.confirmClear = false;
+                renderPresyo();
+            });
+
+            // print report
+            printReportBtn.addEventListener('click', () => {
+                const txs = filterByPeriod(state.period);
+                const agg = aggregate(txs);
+                if (agg.count > 0) triggerPrint('report', { txs, agg });
+            });
+
+            // Keyboard shortcut: Enter to add to ticket
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' && state.tab === 'timbang') {
+                    const sel = getSelected();
+                    if (sel && getKilos() > 0) addToTicket();
+                }
+            });
+
+            // initial render
+            switchTab('timbang');
+
+            // save on page unload
+            window.addEventListener('beforeunload', () => {
+                saveToStorage();
+            });
+
+            // PWA: register service worker via blob
+            registerServiceWorker();
+
+            console.log('JunkShop POS ready');
+        }
+
+        // ---------- PWA: SERVICE WORKER ----------
+        function registerServiceWorker() {
+            if (!('serviceWorker' in navigator)) return;
+            const swCode = `
+                self.addEventListener('install', e => {
+                    e.waitUntil(
+                        caches.open('junkshop-v1').then(c => c.addAll(['/']))
+                    );
+                });
+                self.addEventListener('fetch', e => {
+                    e.respondWith(
+                        caches.match(e.request).then(r => r || fetch(e.request).catch(() => new Response('Offline', {status:503})))
+                    );
+                });
+                self.addEventListener('activate', e => {
+                    e.waitUntil(clients.claim());
+                });
+            `;
+            try {
+                const blob = new Blob([swCode], { type: 'application/javascript' });
+                const url = URL.createObjectURL(blob);
+                navigator.serviceWorker.register(url, { scope: '/' }).catch(() => {});
+            } catch (_) {}
+        }
+
+        // ---------- START ----------
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', init);
+        } else {
+            init();
+        }
+
+    })();
+</script>
+</body>
+</html>
