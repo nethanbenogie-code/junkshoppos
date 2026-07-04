@@ -1,1193 +1,622 @@
 <!DOCTYPE html>
-<html lang="en-PH">
+<html lang="fil">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>JunkShop POS V1</title>
-    <link rel="manifest" href="data:application/json;base64,ewogICJuYW1lIjogIkp1bmtTaG9wIFBPUyIsCiAgInNob3J0X25hbWUiOiAiSnVua1BPUyIsCiAgImRlc2NyaXB0aW9uIjogIkp1bmtTaG9wIFBvaW50LW9mLVNhbGUgU3lzdGVtIiwKICAic3RhcnRfdXJsIjogIi4iLAogICJkaXNwbGF5IjogInN0YW5kYWxvbmUiLAogICJiYWNrZ3JvdW5kX2NvbG9yIjogIiNFOUU3RTEiLAogICJ0aGVtZV9jb2xvciI6ICIjMjIyNTJBIiwKICAiaWNvbnMiOiBbCiAgICB7ICJzcmMiOiAiZGF0YTppbWFnZS9zdmcreG1sLDxzdmcgeG1sbnM9J2h0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnJyB2aWV3Qm94PScwIDAgNTEyIDUxMic+PHJlY3Qgd2lkdGg9JzUxMicgaGVpZ2h0PSc1MTInIHJ4PSc2MCcgZmlsbD0nJTIzMjIyNTJBJy8+PHRleHQgeD0nMjU2JyB5PSczNDAnIGZvbnQtc2l6ZT0nMjQwJyB0ZXh0LWFuY2hvcj0nbWlkZGxlJyBmaWxsPSd3aGl0ZScgZm9udC1mYW1pbHk9J3NhbnMtc2VyaWYnPkokPC90ZXh0Pjwvc3ZnPg=="LCAic2l6ZXMiOiAiNTEyeDUxMiIsICJ0eXBlIjogImltYWdlL3N2Zyt4bWwiIH0sCiAgICB7ICJzcmMiOiAiZGF0YTppbWFnZS9zdmcreG1sLDxzdmcgeG1sbnM9J2h0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnJyB2aWV3Qm94PScwIDAgMTkyIDE5Mic+PHJlY3Qgd2lkdGg9JzE5MicgaGVpZ2h0PScxOTInIHJ4PScyNCcgZmlsbD0nJTIzMjIyNTJBJy8+PHRleHQgeD0nOTYnIHk9JzEzMCcgZm9udC1zaXplPSc5MCcgdGV4dC1hbmNob3I9J21pZGRsZScgZmlsbD0nd2hpdGUnIGZvbnQtZmFtaWx5PSdzYW5zLXNlcmlmJz4kPC90ZXh0Pjwvc3ZnPg=="LCAic2l6ZXMiOiAiMTkyeDE5MiIsICJ0eXBlIjogImltYWdlL3N2Zyt4bWwiIH0KICBdCn0=" />
-    <style>
-        /* ---------- Design tokens ---------- */
-        :root {
-            --bg: #E9E7E1;
-            --card: #FFFFFF;
-            --line: #D5D2CA;
-            --ink: #22252A;
-            --muted: #6E7076;
-            --amber: #E8930C;
-            --amberDark: #C67B08;
-            --rust: #B4472E;
-            --green: #2E7D4F;
-            --lcdBg: #14231A;
-            --lcdDigit: #8AF5A3;
-            --lcdDim: #3D5C49;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Junkshop POS</title>
+<meta name="description" content="POS para sa junkshop — timbang, presyo, resibo, at ulat.">
+<meta name="theme-color" content="#E8930C">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Junkshop POS">
+<link rel="icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMAAAADACAYAAABS3GwHAAADh0lEQVR42u3dTW4TTRSG0a6ShxHjLIKtWWIpSNkai8gYeR5GTMBK/NM/des9Z4g+hS/d9/GtBhO35QDvby8fC/zj9Xxpe/+ezcCTHEQz9CTH0Aw9yTF0w081a85aM/gkb4Nu+EneBs3gk7wNuuEneRt0w09yBN3wkxxBN/wkR9ANP8kRdMNPcgTdJSJZ9+pP8hbohp/kCByBcATy6k/qFuiGn+QIHIFwBIL4ABx/SDwG2QDYABAdgOMPqccgGwAbAAQAgZrzPzYACAAEAAKAFCeX4Bjff37779d+/fjtwuzMnwINMPhCcAQy/A/8dwhguuEXgQDih18EAgABJL/62wICAAGAAEAAIIBynv1bXX8rLAAQQOIW8OovgNgIDL8AYiMw/AKwCRAACAAEANso808ivSvSs44NAAKAsCOQ44+jkA0AAgABgABgDSV/Nmj199N89VBf+fur9gcWNgCOQCAAEAAIAAQAAgABgABAACAAEAAIAAQAAgABgABAACAAEAAIAAQAAgABgABAAHC0Ej8a0UeL1lHtXtkAOAKBI9AGjvwpyDP/BGb3ygYAAYAAYNQAvjq7bfVpIs7/7pUNABUCWPuVxYdqu1c2AIwSwC1nuLVeCW75Os7/7tWQG+DZC+vo4149or2/vXyMdtHuKX+rr3vktTj6/zPpXu0WwCPlf3YR1vxaAsi9V0O/HdqxJudYNO1D8AivbB583athHoL3/gYNv3s1VAB7fqOG370a9hng7ze8xdnR4LtXQ2+ALS+A4XevSmyAtV9hDL57VTaAaxfG2xrqbIPK9+pU4QLjQXnaZwAQAAgABAACAAGAAEAAIAAQAAgABAACAAGAAEAAIAAQAAgABAACAAGAAEAAIAAQAPF2/YwwsAFAADCGU+I37dMnr0v8idw2AI5AIAAQAAgABAACgMl5KwQ2AAgABAACAAGAAEAAIAAQAAgABAACgPoBvJ4vzWUg0ev50mwAHIFAAJAagOcAEs//NgA2gEuAAByDCDz+2ADYAC4BAnAMIvD4c3UDiICU4XcEwhHo1lJgtlf/TzeACJh9+B2BcAR6tByo/up/0wYQAbMO/81HIBEw4/Df9QwgAmYb/rsfgkXATMN/dwAiYKbhX5ZleWqYfbwSVQf/4Q1gGzDL8D+9AWwDqg7+KhvANqDy8K+6AWwEqgz9LgGIgQqnikOOLYJglGP0H77TeUvxNTD0AAAAAElFTkSuQmCC">
+<link rel="apple-touch-icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMAAAADACAYAAABS3GwHAAADh0lEQVR42u3dTW4TTRSG0a6ShxHjLIKtWWIpSNkai8gYeR5GTMBK/NM/des9Z4g+hS/d9/GtBhO35QDvby8fC/zj9Xxpe/+ezcCTHEQz9CTH0Aw9yTF0w081a85aM/gkb4Nu+EneBs3gk7wNuuEneRt0w09yBN3wkxxBN/wkR9ANP8kRdMNPcgTdJSJZ9+pP8hbohp/kCByBcATy6k/qFuiGn+QIHIFwBIL4ABx/SDwG2QDYABAdgOMPqccgGwAbAAQAgZrzPzYACAAEAAKAFCeX4Bjff37779d+/fjtwuzMnwINMPhCcAQy/A/8dwhguuEXgQDih18EAgABJL/62wICAAGAAEAAIIBynv1bXX8rLAAQQOIW8OovgNgIDL8AYiMw/AKwCRAACAAEANso808ivSvSs44NAAKAsCOQ44+jkA0AAgABgABgDSV/Nmj199N89VBf+fur9gcWNgCOQCAAEAAIAAQAAgABgABAACAAEAAIAAQAAgABgABAACAAEAAIAAQAAgABgABAAHC0Ej8a0UeL1lHtXtkAOAKBI9AGjvwpyDP/BGb3ygYAAYAAYNQAvjq7bfVpIs7/7pUNABUCWPuVxYdqu1c2AIwSwC1nuLVeCW75Os7/7tWQG+DZC+vo4149or2/vXyMdtHuKX+rr3vktTj6/zPpXu0WwCPlf3YR1vxaAsi9V0O/HdqxJudYNO1D8AivbB583athHoL3/gYNv3s1VAB7fqOG370a9hng7ze8xdnR4LtXQ2+ALS+A4XevSmyAtV9hDL57VTaAaxfG2xrqbIPK9+pU4QLjQXnaZwAQAAgABAACAAGAAEAAIAAQAAgABAACAAGAAEAAIAAQAAgABAACAAGAAEAAIAAQAPF2/YwwsAFAADCGU+I37dMnr0v8idw2AI5AIAAQAAgABAACgMl5KwQ2AAgABAACAAGAAEAAIAAQAAgABAACgPoBvJ4vzWUg0ev50mwAHIFAAJAagOcAEs//NgA2gEuAAByDCDz+2ADYAC4BAnAMIvD4c3UDiICU4XcEwhHo1lJgtlf/TzeACJh9+B2BcAR6tByo/up/0wYQAbMO/81HIBEw4/Df9QwgAmYb/rsfgkXATMN/dwAiYKbhX5ZleWqYfbwSVQf/4Q1gGzDL8D+9AWwDqg7+KhvANqDy8K+6AWwEqgz9LgGIgQqnikOOLYJglGP0H77TeUvxNTD0AAAAAElFTkSuQmCC">
+<style>
+  :root{
+    --bg:#E9E7E1; --card:#FFFFFF; --line:#D5D2CA; --ink:#22252A; --muted:#6E7076;
+    --amber:#E8930C; --amber-dark:#C67B08; --rust:#B4472E; --green:#2E7D4F;
+    --lcd-bg:#14231A; --lcd-digit:#8AF5A3; --lcd-dim:#3D5C49;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-tap-highlight-color:transparent}
+  .display{font-family:"Arial Narrow","Helvetica Neue",system-ui,sans-serif;letter-spacing:.03em;font-stretch:condensed;text-transform:uppercase;font-weight:700}
+  .mono{font-family:ui-monospace,"Courier New",monospace}
+  button{font-family:inherit;-webkit-user-select:none;user-select:none}
+  button:active{transform:translateY(1px)}
+  input{font-family:inherit}
 
-        @import url('https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@600;700&family=Share+Tech+Mono&display=swap');
+  .wrap{max-width:480px;margin:0 auto;padding:0 12px 100px}
+  header.app{display:flex;align-items:baseline;justify-content:space-between;padding:16px 4px 12px}
+  header.app .title{font-size:24px}
+  header.app .title span{color:var(--amber)}
+  header.app .date{font-size:12px;color:var(--muted)}
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-        html,
-        body {
-            background: var(--bg);
-            min-height: 100vh;
-            color: var(--ink);
-            font-family: system-ui, -apple-system, sans-serif;
-            -webkit-tap-highlight-color: transparent;
-            touch-action: manipulation;
-        }
+  /* Timbang layout */
+  .tg{display:flex;flex-direction:column;gap:14px}
+  .mat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+  .sum-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+  .rep-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+  @media(min-width:700px){
+    .wrap{max-width:700px}
+    .mat-grid{grid-template-columns:repeat(4,1fr)}
+    .rep-grid{grid-template-columns:repeat(3,1fr)}
+  }
+  @media(min-width:980px){
+    .wrap{max-width:1000px}
+    .tg{display:grid;grid-template-columns:400px 1fr;grid-template-rows:auto auto 1fr;
+        grid-template-areas:"toggle chips" "lcd chips" "pad ticket";gap:16px 24px;align-items:start}
+    .a-toggle{grid-area:toggle}.a-lcd{grid-area:lcd}.a-chips{grid-area:chips}.a-pad{grid-area:pad}.a-ticket{grid-area:ticket}
+  }
 
-        .js-display {
-            font-family: 'Saira Condensed', system-ui, sans-serif;
-            letter-spacing: 0.03em;
-        }
-        .js-mono {
-            font-family: 'Share Tech Mono', ui-monospace, monospace;
-        }
-        .js-btn {
-            transition: transform 0.08s ease;
-            touch-action: manipulation;
-        }
-        .js-btn:active {
-            transform: translateY(1px);
-        }
+  .toggle-row{display:flex;gap:8px}
+  .toggle-btn{flex:1;padding:10px 0;font-size:16px;border-radius:10px;cursor:pointer;border:2px solid var(--line);background:var(--card);color:var(--muted)}
+  .toggle-btn.buy.on{border-color:var(--amber);background:var(--amber);color:#fff}
+  .toggle-btn.sell.on{border-color:var(--green);background:var(--green);color:#fff}
 
-        /* ---- responsive layout ---- */
-        .js-wrap {
-            max-width: 480px;
-            margin: 0 auto;
-            padding: 0 12px 100px;
-        }
-        .tg {
-            display: flex;
-            flex-direction: column;
-            gap: 14px;
-        }
-        .mat-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 8px;
-        }
-        .sum-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 8px;
-        }
-        .rep-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 8px;
-        }
+  .lcd{background:var(--lcd-bg);border-radius:14px;padding:14px 16px;border:3px solid #0C1811;box-shadow:inset 0 2px 12px rgba(0,0,0,.6)}
+  .lcd .row1{display:flex;justify-content:space-between;font-size:12px;color:var(--lcd-dim);text-transform:uppercase}
+  .lcd .kilos{font-size:46px;color:var(--lcd-digit);text-align:right;line-height:1.15;text-shadow:0 0 8px rgba(138,245,163,.4)}
+  .lcd .kilos small{font-size:20px;color:var(--lcd-dim)}
+  .lcd .total{font-size:18px;text-align:right;color:var(--lcd-dim)}
+  .lcd .total.on{color:var(--lcd-digit)}
 
-        @media (min-width: 700px) {
-            .js-wrap {
-                max-width: 700px;
-            }
-            .mat-grid {
-                grid-template-columns: repeat(4, 1fr);
-            }
-            .rep-grid {
-                grid-template-columns: repeat(3, 1fr);
-            }
-        }
-        @media (min-width: 980px) {
-            .js-wrap {
-                max-width: 1000px;
-            }
-            .tg {
-                display: grid;
-                grid-template-columns: 400px 1fr;
-                grid-template-areas: "toggle chips" "lcd chips" "pad ticket";
-                grid-template-rows: auto auto 1fr;
-                gap: 16px 24px;
-                align-items: start;
-            }
-            .a-toggle {
-                grid-area: toggle;
-            }
-            .a-lcd {
-                grid-area: lcd;
-            }
-            .a-chips {
-                grid-area: chips;
-            }
-            .a-pad {
-                grid-area: pad;
-            }
-            .a-ticket {
-                grid-area: ticket;
-            }
-            .rep-grid {
-                grid-template-columns: repeat(6, 1fr);
-            }
-        }
+  .chip{padding:10px 4px;border-radius:10px;cursor:pointer;border:2px solid var(--line);background:var(--card);text-align:center;min-width:0}
+  .chip.on{border-color:var(--amber);background:#FDF3E3}
+  .chip .nm{font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .chip .pr{font-size:11px;color:var(--muted)}
 
-        /* ---- printing ---- */
-        .print-area {
-            display: none;
-        }
-        @media print {
-            body {
-                background: #fff !important;
-            }
-            .screen-ui {
-                display: none !important;
-            }
-            .print-area {
-                display: block !important;
-                color: #000;
-                background: #fff;
-            }
-            .receipt {
-                width: 270px;
-                font-family: 'Share Tech Mono', ui-monospace, monospace;
-                font-size: 12px;
-            }
-            .report-doc {
-                font-family: system-ui, sans-serif;
-                font-size: 13px;
-                max-width: 720px;
-            }
-            .report-doc table {
-                width: 100%;
-                border-collapse: collapse;
-            }
-            .report-doc th,
-            .report-doc td {
-                border: 1px solid #999;
-                padding: 5px 8px;
-                text-align: right;
-            }
-            .report-doc th:first-child,
-            .report-doc td:first-child {
-                text-align: left;
-            }
-            @page {
-                margin: 10mm;
-            }
-        }
+  .pad{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+  .pad button{padding:13px 0;font-size:22px;border-radius:10px;cursor:pointer;background:var(--card);border:1px solid var(--line);color:var(--ink)}
+  .add-btn{width:100%;margin-top:10px;padding:14px 0;font-size:18px;border-radius:12px;border:none;background:var(--ink);color:#fff;cursor:pointer}
+  .add-btn:disabled{background:var(--line);color:var(--muted);cursor:default;transform:none}
 
-        /* ---- utility ---- */
-        .hidden {
-            display: none !important;
-        }
-        .flex-center {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .gap-1 {
-            gap: 4px;
-        }
-        .gap-2 {
-            gap: 8px;
-        }
-        .w-full {
-            width: 100%;
-        }
-        .text-center {
-            text-align: center;
-        }
-        .text-right {
-            text-align: right;
-        }
-        .truncate {
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+  .ticket-row{display:flex;align-items:center;gap:8px;padding:10px 12px;border-bottom:1px dashed var(--line)}
+  .ticket-row .info{flex:1;min-width:0}
+  .ticket-row .nm{font-size:15px}
+  .ticket-row .sub{font-size:12px;color:var(--muted)}
+  .xbtn{background:none;border:none;cursor:pointer;color:var(--rust);padding:4px;font-size:16px;line-height:1}
+  .pay-btn{width:100%;padding:15px 0;font-size:19px;border:none;cursor:pointer;color:#fff}
+  .pay-btn.buy{background:var(--amber)}
+  .pay-btn.sell{background:var(--green)}
+  .empty-box{border:2px dashed var(--line);border-radius:12px;padding:20px 12px;text-align:center;color:var(--muted);font-size:13px}
 
-        /* toast animation */
-        .toast-enter {
-            animation: toastIn 0.25s ease forwards;
-        }
-        @keyframes toastIn {
-            0% {
-                opacity: 0;
-                transform: translateX(-50%) translateY(16px);
-            }
-            100% {
-                opacity: 1;
-                transform: translateX(-50%) translateY(0);
-            }
-        }
+  /* Presyo */
+  .settings-card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px;margin-bottom:14px}
+  .settings-card .hd{font-size:14px;color:var(--muted);margin-bottom:8px}
+  .settings-card input[type=text]{width:100%;padding:9px 10px;border-radius:8px;border:1px solid var(--line);background:var(--bg);font-size:14px;margin-bottom:8px;outline:none;color:var(--ink)}
+  .chk{display:flex;align-items:center;gap:8px;margin-top:6px;font-size:13px;cursor:pointer}
+  .price-head,.price-row{display:grid;grid-template-columns:1fr 76px 76px 32px;gap:6px;align-items:center}
+  .price-head{padding:0 14px 6px;font-size:13px;color:var(--muted)}
+  .price-head div:nth-child(2),.price-head div:nth-child(3){text-align:right}
+  .price-row{padding:8px 10px;border-top:1px solid var(--line)}
+  .price-row:first-child{border-top:none}
+  .price-row input.nm{border:none;background:transparent;font-size:14px;font-weight:600;color:var(--ink);min-width:0;outline:none}
+  .price-row input.pr{width:100%;text-align:right;font-size:14px;padding:5px 6px;border-radius:6px;border:1px solid var(--line);background:var(--bg);color:var(--ink);outline:none}
+  .dash-btn{width:100%;margin-top:10px;padding:12px 0;font-size:16px;border-radius:10px;border:2px dashed var(--line);background:transparent;color:var(--muted);cursor:pointer}
+  .util-row{display:flex;gap:8px;margin-top:18px}
+  .util-row button{flex:1;padding:10px 0;font-size:13px;border-radius:10px;background:var(--card);cursor:pointer}
+  .util-reset{border:1px solid var(--line);color:var(--muted)}
+  .util-danger{border:1px solid var(--rust);color:var(--rust)}
+  .confirm-box{margin-top:10px;padding:12px;border-radius:10px;background:#FBEDE9;border:1px solid var(--rust);font-size:13px}
+  .confirm-box .btns{display:flex;gap:8px;margin-top:8px}
+  .confirm-box button{flex:1;padding:8px;border-radius:8px;cursor:pointer}
+  .confirm-yes{border:none;background:var(--rust);color:#fff;font-weight:700}
+  .confirm-no{border:1px solid var(--line);background:var(--card)}
 
-        /* button reset */
-        button {
-            font: inherit;
-        }
-        input {
-            font: inherit;
-        }
-    </style>
+  /* Talaan / Ulat */
+  .day-title{font-size:15px;padding:0 4px 6px}
+  .stat{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:8px 10px}
+  .stat .lb{font-size:11px;color:var(--muted);text-transform:uppercase}
+  .stat .vl{font-size:14px}
+  .rep-grid .stat .vl{font-size:17px}
+  .tx-row{display:flex;align-items:center;gap:8px;padding:10px 12px;border-top:1px solid var(--line)}
+  .tx-row:first-child{border-top:none}
+  .tx-row .info{flex:1;min-width:0}
+  .tx-row .top{display:flex;justify-content:space-between;align-items:baseline}
+  .tx-row .tag{font-size:14px}
+  .tx-row .tag.buy{color:var(--amber-dark)}
+  .tx-row .tag.sell{color:var(--green)}
+  .tx-row .sub{font-size:12px;color:var(--muted);margin-top:2px}
+  .print-mini{background:none;border:1px solid var(--line);border-radius:8px;cursor:pointer;color:var(--muted);padding:6px 9px;font-size:14px}
+  .period-row{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+  .period-btn{flex:1;min-width:70px;padding:9px 0;font-size:15px;border-radius:10px;cursor:pointer;border:2px solid var(--line);background:var(--card);color:var(--muted)}
+  .period-btn.on{border-color:var(--ink);background:var(--ink);color:#fff}
+  .rep-head,.rep-row{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr 1fr;gap:4px;padding:9px 12px}
+  .rep-head{background:var(--bg);border-bottom:1px solid var(--line);font-size:12px;color:var(--muted)}
+  .rep-head div,.rep-row div{text-align:right;min-width:0}
+  .rep-head div:first-child,.rep-row div:first-child{text-align:left}
+  .rep-row{border-top:1px solid var(--line);font-size:13px}
+  .rep-row:first-of-type{border-top:none}
+  .big-print{width:100%;margin-top:14px;padding:14px 0;font-size:17px;border-radius:12px;border:none;cursor:pointer;background:var(--ink);color:#fff}
+  .big-print:disabled{background:var(--line);color:var(--muted);cursor:default;transform:none}
+
+  /* nav + toast */
+  nav{position:fixed;bottom:0;left:0;right:0;background:var(--card);border-top:1px solid var(--line);z-index:40;padding-bottom:env(safe-area-inset-bottom)}
+  nav .inner{max-width:640px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr)}
+  nav button{padding:9px 0 11px;background:none;border:none;cursor:pointer;color:var(--muted)}
+  nav button.on{color:var(--amber-dark)}
+  nav .ic{font-size:19px;line-height:1}
+  nav .lb{font-size:12px;margin-top:2px}
+  #toast{position:fixed;bottom:84px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 18px;border-radius:999px;font-size:15px;white-space:nowrap;box-shadow:0 4px 14px rgba(0,0,0,.25);z-index:50;display:none}
+  #toast.bad{background:var(--rust)}
+
+  /* printing */
+  #print-area{display:none}
+  @media print{
+    body{background:#fff!important}
+    #app{display:none!important}
+    #print-area{display:block!important;color:#000;background:#fff}
+    .receipt{width:270px;font-family:ui-monospace,"Courier New",monospace;font-size:12px}
+    .receipt .c{text-align:center}
+    .receipt .b{font-weight:700}
+    .receipt .ln{display:flex;justify-content:space-between}
+    .report-doc{font-family:system-ui,sans-serif;font-size:13px;max-width:720px}
+    .report-doc table{width:100%;border-collapse:collapse;margin-top:6px}
+    .report-doc th,.report-doc td{border:1px solid #999;padding:5px 8px;text-align:right}
+    .report-doc th:first-child,.report-doc td:first-child{text-align:left}
+    @page{margin:10mm}
+  }
+</style>
 </head>
 <body>
 
-    <!-- ============ PRINT AREA ============ -->
-    <div class="print-area" id="printArea">
-        <!-- filled dynamically before print -->
-    </div>
-
-    <!-- ============ SCREEN UI ============ -->
-    <div class="screen-ui">
-        <div class="js-wrap">
-
-            <!-- HEADER -->
-            <header style="display:flex;align-items:baseline;justify-content:space-between;padding:18px 4px 12px;">
-                <div class="js-display" style="font-size:26px;font-weight:700;text-transform:uppercase;">
-                    <span id="shopNameDisplay">Junkshop</span><span style="color:var(--amber);"> POS</span>
-                </div>
-                <div class="js-mono" style="font-size:12px;color:var(--muted);" id="headerDate"></div>
-            </header>
-
-            <!-- ================= TIMBANG ================= -->
-            <div id="tabTimbang" class="tg">
-
-                <!-- toggle -->
-                <div class="a-toggle" style="display:flex;gap:8px;">
-                    <button class="js-display js-btn mode-btn" data-mode="buy"
-                    style="flex:1;padding:10px 0;font-size:16px;font-weight:700;text-transform:uppercase;border-radius:10px;cursor:pointer;">
-                    BILI (pasok)
-                </button>
-                <button class="js-display js-btn mode-btn" data-mode="sell"
-                style="flex:1;padding:10px 0;font-size:16px;font-weight:700;text-transform:uppercase;border-radius:10px;cursor:pointer;">
-                BENTA (labas)
-            </button>
-        </div>
-
-        <!-- LCD -->
-        <div class="a-lcd" style="background:var(--lcdBg);border-radius:14px;padding:14px 16px;border:3px solid #0C1811;box-shadow:inset 0 2px 12px rgba(0,0,0,0.6);">
-            <div style="display:flex;justify-content:space-between;align-items:center;">
-                <span class="js-mono" id="lcdMatName" style="font-size:12px;color:var(--lcdDim);text-transform:uppercase;">PUMILI NG ITEM</span>
-                <span class="js-mono" id="lcdUnitPrice" style="font-size:12px;color:var(--lcdDim);">--</span>
-            </div>
-            <div class="js-mono" style="font-size:46px;color:var(--lcdDigit);text-align:right;line-height:1.15;text-shadow:0 0 8px rgba(138,245,163,0.4);">
-                <span id="lcdKilos">0</span><span style="font-size:20px;color:var(--lcdDim);"> kg</span>
-            </div>
-            <div class="js-mono" id="lcdTotal" style="font-size:18px;color:var(--lcdDim);text-align:right;">= ₱0.00</div>
-        </div>
-
-        <!-- chips -->
-        <div class="a-chips mat-grid" id="matGrid"></div>
-
-        <!-- pad -->
-        <div class="a-pad">
-            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">
-                <button class="js-mono js-btn num-btn" data-key="7" style="padding:13px 0;font-size:22px;border-radius:10px;cursor:pointer;background:var(--card);border:1px solid var(--line);color:var(--ink);">7</button>
-                <button class="js-mono js-btn num-btn" data-key="8" style="padding:13px 0;font-size:22px;border-radius:10px;cursor:pointer;background:var(--card);border:1px solid var(--line);color:var(--ink);">8</button>
-                <button class="js-mono js-btn num-btn" data-key="9" style="padding:13px 0;font-size:22px;border-radius:10px;cursor:pointer;background:var(--card);border:1px solid var(--line);color:var(--ink);">9</button>
-                <button class="js-mono js-btn num-btn" data-key="4" style="padding:13px 0;font-size:22px;border-radius:10px;cursor:pointer;background:var(--card);border:1px solid var(--line);color:var(--ink);">4</button>
-                <button class="js-mono js-btn num-btn" data-key="5" style="padding:13px 0;font-size:22px;border-radius:10px;cursor:pointer;background:var(--card);border:1px solid var(--line);color:var(--ink);">5</button>
-                <button class="js-mono js-btn num-btn" data-key="6" style="padding:13px 0;font-size:22px;border-radius:10px;cursor:pointer;background:var(--card);border:1px solid var(--line);color:var(--ink);">6</button>
-                <button class="js-mono js-btn num-btn" data-key="1" style="padding:13px 0;font-size:22px;border-radius:10px;cursor:pointer;background:var(--card);border:1px solid var(--line);color:var(--ink);">1</button>
-                <button class="js-mono js-btn num-btn" data-key="2" style="padding:13px 0;font-size:22px;border-radius:10px;cursor:pointer;background:var(--card);border:1px solid var(--line);color:var(--ink);">2</button>
-                <button class="js-mono js-btn num-btn" data-key="3" style="padding:13px 0;font-size:22px;border-radius:10px;cursor:pointer;background:var(--card);border:1px solid var(--line);color:var(--ink);">3</button>
-                <button class="js-mono js-btn num-btn" data-key="." style="padding:13px 0;font-size:22px;border-radius:10px;cursor:pointer;background:var(--card);border:1px solid var(--line);color:var(--ink);">.</button>
-                <button class="js-mono js-btn num-btn" data-key="0" style="padding:13px 0;font-size:22px;border-radius:10px;cursor:pointer;background:var(--card);border:1px solid var(--line);color:var(--ink);">0</button>
-                <button class="js-mono js-btn num-btn" data-key="back" style="padding:13px 0;font-size:22px;border-radius:10px;cursor:pointer;background:var(--card);border:1px solid var(--line);color:var(--ink);">⌫</button>
-            </div>
-            <button class="js-display js-btn" id="addToTicketBtn"
-            style="width:100%;margin-top:10px;padding:14px 0;font-size:18px;font-weight:700;text-transform:uppercase;border-radius:12px;border:none;cursor:pointer;background:var(--line);color:var(--muted);">
-            Idagdag sa resibo
-        </button>
-    </div>
-
-    <!-- ticket -->
-    <div class="a-ticket" id="ticketArea">
-        <div style="border:2px dashed var(--line);border-radius:12px;padding:18px 12px;text-align:center;color:var(--muted);font-size:13px;">
-            Walang laman ang resibo. Pumili ng item at i-type ang kilo.
-        </div>
-    </div>
+<div id="app">
+  <div class="wrap">
+    <header class="app">
+      <div class="display title" id="hdr-title">Junkshop <span>POS</span></div>
+      <div class="mono date" id="hdr-date"></div>
+    </header>
+    <main id="view"></main>
+  </div>
+  <div id="toast"></div>
+  <nav>
+    <div class="inner" id="nav"></div>
+  </nav>
 </div>
 
-<!-- ================= PRESYO ================= -->
-<div id="tabPresyo" style="display:none;max-width:560px;margin:0 auto;">
-
-    <!-- shop settings -->
-    <div style="background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px;margin-bottom:14px;">
-        <div class="js-display" style="font-size:14px;font-weight:700;text-transform:uppercase;color:var(--muted);margin-bottom:8px;">Detalye ng shop (lalabas sa resibo)</div>
-        <input id="settingsShopName" value="JUNKSHOP" placeholder="Pangalan ng shop"
-        style="width:100%;box-sizing:border-box;padding:9px 10px;border-radius:8px;border:1px solid var(--line);background:var(--bg);font-size:14px;margin-bottom:8px;outline:none;color:var(--ink);" />
-        <input id="settingsShopInfo" value="" placeholder="Address / contact no. (optional)"
-        style="width:100%;box-sizing:border-box;padding:9px 10px;border-radius:8px;border:1px solid var(--line);background:var(--bg);font-size:14px;outline:none;color:var(--ink);" />
-        <label style="display:flex;align-items:center;gap:8px;margin-top:10px;font-size:13px;cursor:pointer;">
-            <input type="checkbox" id="settingsAutoPrint" /> I-print agad ang resibo pagkatapos ng bawat transaksyon
-        </label>
-    </div>
-
-    <!-- price grid -->
-    <div style="display:grid;grid-template-columns:1fr 76px 76px 32px;gap:6px;padding:0 4px 6px;">
-        <div class="js-display" style="font-size:13px;font-weight:700;text-transform:uppercase;color:var(--muted);">Item</div>
-        <div class="js-display" style="font-size:13px;font-weight:700;text-transform:uppercase;color:var(--muted);text-align:right;">Bili/kg</div>
-        <div class="js-display" style="font-size:13px;font-weight:700;text-transform:uppercase;color:var(--muted);text-align:right;">Benta/kg</div>
-        <div></div>
-    </div>
-    <div style="background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden;" id="priceList"></div>
-
-    <button class="js-display js-btn" id="addMaterialBtn"
-    style="width:100%;margin-top:10px;padding:12px 0;font-size:16px;font-weight:700;text-transform:uppercase;border-radius:10px;border:2px dashed var(--line);background:transparent;color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;">
-    ＋ Dagdag na item
-</button>
-
-<div style="display:flex;gap:8px;margin-top:18px;">
-    <button class="js-btn" id="resetPricesBtn" style="flex:1;padding:10px 0;font-size:13px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;">
-        ⟳ Ibalik ang default
-    </button>
-    <button class="js-btn" id="clearAllBtn" style="flex:1;padding:10px 0;font-size:13px;border-radius:10px;border:1px solid var(--rust);background:var(--card);color:var(--rust);cursor:pointer;">
-        Burahin ang talaan
-    </button>
-</div>
-<div id="confirmClearArea" style="display:none;margin-top:10px;padding:12px;border-radius:10px;background:#FBEDE9;border:1px solid var(--rust);">
-    <div style="font-size:13px;margin-bottom:8px;">Buburahin ang lahat ng transaksyon. Hindi na ito maibabalik.</div>
-    <div style="display:flex;gap:8px;">
-        <button class="js-btn" id="confirmClearYes" style="flex:1;padding:8px;border-radius:8px;border:none;background:var(--rust);color:#fff;cursor:pointer;font-weight:700;">Oo, burahin</button>
-        <button class="js-btn" id="confirmClearNo" style="flex:1;padding:8px;border-radius:8px;border:1px solid var(--line);background:var(--card);cursor:pointer;">Huwag</button>
-    </div>
-</div>
-</div>
-
-<!-- ================= TALAAN ================= -->
-<div id="tabTalaan" style="display:none;max-width:640px;margin:0 auto;">
-    <div id="historyList"></div>
-</div>
-
-<!-- ================= ULAT ================= -->
-<div id="tabUlat" style="display:none;max-width:720px;margin:0 auto;">
-    <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;" id="periodBtns"></div>
-    <div class="rep-grid" style="margin-bottom:14px;" id="reportStats"></div>
-    <div id="reportRows"></div>
-    <button class="js-display js-btn" id="printReportBtn"
-    style="width:100%;margin-top:14px;padding:14px 0;font-size:17px;font-weight:700;text-transform:uppercase;border-radius:12px;border:none;cursor:pointer;background:var(--line);color:var(--muted);display:flex;align-items:center;justify-content:center;gap:8px;">
-    🖨 I-print ang ulat
-</button>
-</div>
-
-</div><!-- /js-wrap -->
-
-<!-- TOAST -->
-<div id="toast" style="display:none;position:fixed;bottom:84px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 18px;border-radius:999px;font-size:15px;font-weight:700;white-space:nowrap;box-shadow:0 4px 14px rgba(0,0,0,0.25);z-index:50;font-family:'Saira Condensed',system-ui,sans-serif;letter-spacing:0.03em;"></div>
-
-<!-- NAV -->
-<nav style="position:fixed;bottom:0;left:0;right:0;background:var(--card);border-top:1px solid var(--line);z-index:40;">
-    <div style="max-width:640px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr 1fr 1fr;">
-        <button class="nav-btn" data-tab="timbang" style="padding:10px 0 12px;background:none;border:none;cursor:pointer;color:var(--amberDark);">
-            <svg style="display:block;margin:0 auto;" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4M12 22v-4M4 12H2M6 12H4M20 12h-2M22 12h-2M19.07 4.93l-2.83 2.83M4.93 19.07l2.83-2.83M19.07 19.07l-2.83-2.83M4.93 4.93l2.83 2.83"/><circle cx="12" cy="12" r="4"/></svg>
-            <div class="js-display" style="font-size:12px;font-weight:700;text-transform:uppercase;margin-top:2px;">Timbang</div>
-        </button>
-        <button class="nav-btn" data-tab="presyo" style="padding:10px 0 12px;background:none;border:none;cursor:pointer;color:var(--muted);">
-            <svg style="display:block;margin:0 auto;" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4M12 22v-4M4 12H2M6 12H4M20 12h-2M22 12h-2M19.07 4.93l-2.83 2.83M4.93 19.07l2.83-2.83M19.07 19.07l-2.83-2.83M4.93 4.93l2.83 2.83"/><circle cx="12" cy="12" r="4"/></svg>
-            <div class="js-display" style="font-size:12px;font-weight:700;text-transform:uppercase;margin-top:2px;">Presyo</div>
-        </button>
-        <button class="nav-btn" data-tab="talaan" style="padding:10px 0 12px;background:none;border:none;cursor:pointer;color:var(--muted);">
-            <svg style="display:block;margin:0 auto;" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/><line x1="12" y1="11" x2="12" y2="17"/><line x1="9" y1="14" x2="15" y2="14"/></svg>
-            <div class="js-display" style="font-size:12px;font-weight:700;text-transform:uppercase;margin-top:2px;">Talaan</div>
-        </button>
-        <button class="nav-btn" data-tab="ulat" style="padding:10px 0 12px;background:none;border:none;cursor:pointer;color:var(--muted);">
-            <svg style="display:block;margin:0 auto;" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
-            <div class="js-display" style="font-size:12px;font-weight:700;text-transform:uppercase;margin-top:2px;">Ulat</div>
-        </button>
-    </div>
-</nav>
-</div><!-- /screen-ui -->
+<div id="print-area"></div>
 
 <script>
-    (function() {
-        'use strict';
-
-        // ---------- CONSTANTS ----------
-        const DEFAULT_MATERIALS = [
-            { id: "bakal", name: "Bakal", buy: 10, sell: 13 },
-            { id: "tanso", name: "Tanso", buy: 350, sell: 380 },
-            { id: "aluminum", name: "Aluminum", buy: 45, sell: 55 },
-            { id: "lata", name: "Lata", buy: 7, sell: 9 },
-            { id: "stainless", name: "Stainless", buy: 35, sell: 45 },
-            { id: "yero", name: "Yero", buy: 7, sell: 9 },
-            { id: "karton", name: "Karton", buy: 4, sell: 5.5 },
-            { id: "papel", name: "Papel (puti)", buy: 6, sell: 8 },
-            { id: "plastik", name: "Plastik (assorted)", buy: 8, sell: 11 },
-            { id: "bote", name: "Bote", buy: 1.5, sell: 2.5 },
-            { id: "baterya", name: "Baterya", buy: 35, sell: 42 },
-        ];
-
-        const DEFAULT_SETTINGS = { shopName: "JUNKSHOP", shopInfo: "", autoPrint: false };
-        const STORE_KEY = "junkshop:data";
-
-        const PERIODS = [
-            { k: "day", label: "Ngayon" },
-            { k: "week", label: "7 Araw" },
-            { k: "month", label: "Buwan" },
-            { k: "all", label: "Lahat" },
-        ];
-        const periodLabel = {
-            day: "Ulat Ngayong Araw",
-            week: "Ulat — Huling 7 Araw",
-            month: "Ulat Ngayong Buwan",
-            all: "Ulat — Lahat"
-        };
-
-        const peso = (n) => "₱" + (Number(n) || 0).toLocaleString("en-PH", { minimumFractionDigits: 2,
-            maximumFractionDigits: 2 });
-        const num = (n) => (Number(n) || 0).toLocaleString("en-PH", { maximumFractionDigits: 2 });
-        const kg = (n) => num(n) + " kg";
-        const dateKey = (ts) => new Date(ts).toLocaleDateString("en-PH", { year: "numeric", month: "short",
-            day: "numeric", weekday: "short" });
-        const timeStr = (ts) => new Date(ts).toLocaleTimeString("en-PH", { hour: "numeric", minute: "2-digit" });
-        const fullStamp = (ts) => new Date(ts).toLocaleString("en-PH", { month: "short", day: "numeric",
-            year: "numeric", hour: "numeric", minute: "2-digit" });
-        const startOfDay = (d) => { const x = new Date(d);
-            x.setHours(0, 0, 0, 0); return x; };
-
-        // ---------- STATE ----------
-        let state = {
-            materials: JSON.parse(JSON.stringify(DEFAULT_MATERIALS)),
-            transactions: [],
-            settings: JSON.parse(JSON.stringify(DEFAULT_SETTINGS)),
-            tab: 'timbang',
-            mode: 'buy',
-            selectedId: null,
-            kilosStr: '',
-            ticket: [],
-            toast: null,
-            confirmClear: false,
-            period: 'day',
-            printJob: null,
-            loading: true,
-        };
-
-        let saveTimer = null;
-        let toastTimer = null;
-
-        // ---------- DOM refs ----------
-        const $ = (s) => document.querySelector(s);
-        const $$ = (s) => document.querySelectorAll(s);
-
-        const tabTimbang = $('#tabTimbang');
-        const tabPresyo = $('#tabPresyo');
-        const tabTalaan = $('#tabTalaan');
-        const tabUlat = $('#tabUlat');
-        const navBtns = $$('.nav-btn');
-        const shopNameDisplay = $('#shopNameDisplay');
-        const headerDate = $('#headerDate');
-        const lcdMatName = $('#lcdMatName');
-        const lcdUnitPrice = $('#lcdUnitPrice');
-        const lcdKilos = $('#lcdKilos');
-        const lcdTotal = $('#lcdTotal');
-        const matGrid = $('#matGrid');
-        const addToTicketBtn = $('#addToTicketBtn');
-        const ticketArea = $('#ticketArea');
-        const toastEl = $('#toast');
-        const priceList = $('#priceList');
-        const settingsShopName = $('#settingsShopName');
-        const settingsShopInfo = $('#settingsShopInfo');
-        const settingsAutoPrint = $('#settingsAutoPrint');
-        const addMaterialBtn = $('#addMaterialBtn');
-        const resetPricesBtn = $('#resetPricesBtn');
-        const clearAllBtn = $('#clearAllBtn');
-        const confirmClearArea = $('#confirmClearArea');
-        const confirmClearYes = $('#confirmClearYes');
-        const confirmClearNo = $('#confirmClearNo');
-        const historyList = $('#historyList');
-        const periodBtns = $('#periodBtns');
-        const reportStats = $('#reportStats');
-        const reportRows = $('#reportRows');
-        const printReportBtn = $('#printReportBtn');
-        const printArea = $('#printArea');
-
-        // ---------- HELPERS ----------
-        function getSelected() {
-            return state.materials.find(m => m.id === state.selectedId) || null;
-        }
-
-        function getKilos() {
-            return parseFloat(state.kilosStr) || 0;
-        }
-
-        function getUnitPrice() {
-            const s = getSelected();
-            if (!s) return 0;
-            return state.mode === 'buy' ? s.buy : s.sell;
-        }
-
-        function getLineTotal() {
-            return getKilos() * getUnitPrice();
-        }
-
-        function getTicketTotal() {
-            return state.ticket.reduce((s, it) => s + it.total, 0);
-        }
-
-        function showToast(msg, bad) {
-            if (toastTimer) clearTimeout(toastTimer);
-            toastEl.textContent = msg;
-            toastEl.style.background = bad ? 'var(--rust)' : 'var(--ink)';
-            toastEl.style.display = 'block';
-            toastEl.className = 'toast-enter';
-            toastTimer = setTimeout(() => {
-                toastEl.style.display = 'none';
-                toastTimer = null;
-            }, 2200);
-        }
-
-        // ---------- STORAGE ----------
-        function loadFromStorage() {
-            try {
-                const raw = localStorage.getItem(STORE_KEY);
-                if (!raw) return false;
-                const data = JSON.parse(raw);
-                if (Array.isArray(data.materials) && data.materials.length) state.materials = data.materials;
-                if (Array.isArray(data.transactions)) state.transactions = data.transactions;
-                if (data.settings) state.settings = { ...DEFAULT_SETTINGS, ...data.settings };
-                return true;
-            } catch (_) { return false; }
-        }
-
-        function saveToStorage() {
-            try {
-                localStorage.setItem(STORE_KEY, JSON.stringify({
-                    materials: state.materials,
-                    transactions: state.transactions,
-                    settings: state.settings
-                }));
-            } catch (_) { /* ignore */ }
-        }
-
-        function debounceSave() {
-            if (saveTimer) clearTimeout(saveTimer);
-            saveTimer = setTimeout(() => { saveToStorage();
-                saveTimer = null; }, 400);
-        }
-
-        // ---------- PERIOD FILTER ----------
-        function filterByPeriod(p) {
-            const now = new Date();
-            return state.transactions.filter(tx => {
-                const d = new Date(tx.ts);
-                if (p === 'day') return startOfDay(d).getTime() === startOfDay(now).getTime();
-                if (p === 'week') return d >= new Date(startOfDay(now).getTime() - 6 * 86400000);
-                if (p === 'month') return d.getMonth() === now.getMonth() && d.getFullYear() === now
-                .getFullYear();
-                return true;
-            });
-        }
-
-        function aggregate(txs) {
-            const rows = {};
-            let buyCash = 0,
-                sellCash = 0,
-                kIn = 0,
-                kOut = 0;
-            for (const tx of txs) {
-                for (const it of tx.items) {
-                    const r = (rows[it.name] = rows[it.name] || { name: it.name, kIn: 0, pIn: 0, kOut: 0,
-                        pOut: 0 });
-                    if (tx.type === 'buy') { r.kIn += it.kilos;
-                        r.pIn += it.total;
-                        buyCash += it.total;
-                        kIn += it.kilos; } else { r.kOut += it.kilos;
-                        r.pOut += it.total;
-                        sellCash += it.total;
-                        kOut += it.kilos; }
-                }
-            }
-            return {
-                rows: Object.values(rows).sort((a, b) => b.pIn + b.pOut - (a.pIn + a.pOut)),
-                buyCash,
-                sellCash,
-                kIn,
-                kOut,
-                count: txs.length
-            };
-        }
-
-        // ---------- RENDER: TIMBANG ----------
-        function renderTimbang() {
-            // mode buttons
-            const modeBtns = $$('.mode-btn');
-            modeBtns.forEach(btn => {
-                const m = btn.dataset.mode;
-                const active = m === state.mode;
-                const color = m === 'buy' ? 'var(--amber)' : 'var(--green)';
-                btn.style.border = '2px solid ' + (active ? color : 'var(--line)');
-                btn.style.background = active ? color : 'var(--card)';
-                btn.style.color = active ? '#fff' : 'var(--muted)';
-            });
-
-            // LCD
-            const sel = getSelected();
-            lcdMatName.textContent = sel ? sel.name : 'PUMILI NG ITEM';
-            lcdUnitPrice.textContent = sel ? peso(getUnitPrice()) + '/kg' : '--';
-            lcdKilos.textContent = state.kilosStr || '0';
-            const total = getLineTotal();
-            lcdTotal.textContent = '= ' + peso(total);
-            lcdTotal.style.color = total > 0 ? 'var(--lcdDigit)' : 'var(--lcdDim)';
-
-            // chips
-            matGrid.innerHTML = '';
-            state.materials.forEach(m => {
-                const active = state.selectedId === m.id;
-                const btn = document.createElement('button');
-                btn.className = 'js-btn';
-                btn.dataset.matId = m.id;
-                btn.style.cssText =
-                    `padding:10px 4px;border-radius:10px;cursor:pointer;border:2px solid ${active ? 'var(--amber)' : 'var(--line)'};background:${active ? '#FDF3E3' : 'var(--card)'};`;
-                btn.innerHTML =
-                    `<div class="js-display" style="font-size:14px;font-weight:700;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${m.name}</div><div class="js-mono" style="font-size:11px;color:var(--muted);">${peso(state.mode === 'buy' ? m.buy : m.sell)}</div>`;
-                btn.addEventListener('click', () => {
-                    state.selectedId = m.id;
-                    renderTimbang();
-                });
-                matGrid.appendChild(btn);
-            });
-
-            // add to ticket button
-            const canAdd = sel && getKilos() > 0;
-            addToTicketBtn.disabled = !canAdd;
-            addToTicketBtn.style.background = canAdd ? 'var(--ink)' : 'var(--line)';
-            addToTicketBtn.style.color = canAdd ? '#fff' : 'var(--muted)';
-            addToTicketBtn.style.cursor = canAdd ? 'pointer' : 'default';
-
-            // ticket
-            renderTicket();
-        }
-
-        function renderTicket() {
-            if (state.ticket.length === 0) {
-                ticketArea.innerHTML =
-                    `<div style="border:2px dashed var(--line);border-radius:12px;padding:18px 12px;text-align:center;color:var(--muted);font-size:13px;">Walang laman ang resibo. Pumili ng item at i-type ang kilo.</div>`;
-                return;
-            }
-            let html = `<div style="background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden;">`;
-            state.ticket.forEach(it => {
-                html += `
-                    <div style="display:flex;align-items:center;gap:8px;padding:10px 12px;border-bottom:1px dashed var(--line);">
-                        <div style="flex:1;">
-                            <div class="js-display" style="font-weight:700;text-transform:uppercase;font-size:15px;">${it.name}</div>
-                            <div class="js-mono" style="font-size:12px;color:var(--muted);">${kg(it.kilos)} × ${peso(it.price)}</div>
-                        </div>
-                        <div class="js-mono" style="font-size:15px;">${peso(it.total)}</div>
-                        <button class="ticket-remove" data-uid="${it.uid}" style="background:none;border:none;cursor:pointer;color:var(--rust);padding:4px;">✕</button>
-                    </div>
-                `;
-            });
-            const total = getTicketTotal();
-            const color = state.mode === 'buy' ? 'var(--amber)' : 'var(--green)';
-            const label = state.mode === 'buy' ? 'Bayaran' : 'Benta';
-            html += `
-                <button class="js-display js-btn" id="completeTicketBtn" style="width:100%;padding:15px 0;font-size:19px;font-weight:700;text-transform:uppercase;border:none;cursor:pointer;color:#fff;background:${color};">${label} — ${peso(total)}</button>
-            </div>`;
-            ticketArea.innerHTML = html;
-
-            // event listeners
-            ticketArea.querySelectorAll('.ticket-remove').forEach(el => {
-                el.addEventListener('click', () => {
-                    const uid = Number(el.dataset.uid);
-                    state.ticket = state.ticket.filter(x => x.uid !== uid);
-                    renderTimbang();
-                });
-            });
-            const completeBtn = ticketArea.querySelector('#completeTicketBtn');
-            if (completeBtn) {
-                completeBtn.addEventListener('click', completeTicket);
-            }
-        }
-
-        // ---------- TICKET ACTIONS ----------
-        function addToTicket() {
-            const sel = getSelected();
-            const kilos = getKilos();
-            if (!sel || kilos <= 0) return;
-            const price = getUnitPrice();
-            state.ticket.push({
-                uid: Date.now() + Math.random() * 1000,
-                matId: sel.id,
-                name: sel.name,
-                kilos: kilos,
-                price: price,
-                total: kilos * price
-            });
-            state.kilosStr = '';
-            // keep selectedId
-            renderTimbang();
-        }
-
-        function completeTicket() {
-            if (state.ticket.length === 0) return;
-            const tx = {
-                id: 'tx_' + Date.now(),
-                type: state.mode,
-                items: state.ticket.map(({ uid, ...rest }) => rest),
-                total: getTicketTotal(),
-                ts: new Date().toISOString(),
-            };
-            state.transactions = [tx, ...state.transactions];
-            state.ticket = [];
-            debounceSave();
-            showToast(state.mode === 'buy' ? 'Bayaran ang suki: ' + peso(tx.total) : 'Benta naitala: ' + peso(tx.total));
-            renderTimbang();
-            // auto-print
-            if (state.settings.autoPrint) {
-                triggerPrint('receipt', tx);
-            }
-        }
-
-        // ---------- RENDER: PRESYO ----------
-        function renderPresyo() {
-            // settings
-            settingsShopName.value = state.settings.shopName || 'JUNKSHOP';
-            settingsShopInfo.value = state.settings.shopInfo || '';
-            settingsAutoPrint.checked = !!state.settings.autoPrint;
-
-            // price list
-            priceList.innerHTML = '';
-            state.materials.forEach((m, i) => {
-                const div = document.createElement('div');
-                div.style.cssText =
-                    `display:grid;grid-template-columns:1fr 76px 76px 32px;gap:6px;align-items:center;padding:8px 10px;border-top:${i ? '1px solid var(--line)' : 'none'};`;
-                div.innerHTML = `
-                    <input class="mat-name-input" data-id="${m.id}" value="${m.name}" style="border:none;background:transparent;font-size:14px;font-weight:600;color:var(--ink);min-width:0;outline:none;" />
-                    <input class="mat-price-input" data-id="${m.id}" data-field="buy" type="number" inputmode="decimal" value="${m.buy}" style="width:100%;box-sizing:border-box;text-align:right;font-size:14px;padding:5px 6px;border-radius:6px;border:1px solid var(--line);background:var(--bg);color:var(--ink);outline:none;" />
-                    <input class="mat-price-input" data-id="${m.id}" data-field="sell" type="number" inputmode="decimal" value="${m.sell}" style="width:100%;box-sizing:border-box;text-align:right;font-size:14px;padding:5px 6px;border-radius:6px;border:1px solid var(--line);background:var(--bg);color:var(--ink);outline:none;" />
-                    <button class="mat-remove-btn" data-id="${m.id}" style="background:none;border:none;cursor:pointer;color:var(--rust);padding:2px;">🗑</button>
-                `;
-                priceList.appendChild(div);
-            });
-
-            // event listeners - name
-            priceList.querySelectorAll('.mat-name-input').forEach(el => {
-                el.addEventListener('input', () => {
-                    const id = el.dataset.id;
-                    const m = state.materials.find(x => x.id === id);
-                    if (m) { m.name = el.value;
-                        debounceSave();
-                        renderTimbang(); }
-                });
-            });
-            priceList.querySelectorAll('.mat-price-input').forEach(el => {
-                el.addEventListener('input', () => {
-                    const id = el.dataset.id;
-                    const field = el.dataset.field;
-                    const m = state.materials.find(x => x.id === id);
-                    if (m) {
-                        const val = parseFloat(el.value);
-                        m[field] = isNaN(val) ? 0 : val;
-                        debounceSave();
-                        renderTimbang();
-                    }
-                });
-            });
-            priceList.querySelectorAll('.mat-remove-btn').forEach(el => {
-                el.addEventListener('click', () => {
-                    const id = el.dataset.id;
-                    state.materials = state.materials.filter(m => m.id !== id);
-                    if (state.selectedId === id) state.selectedId = null;
-                    debounceSave();
-                    renderPresyo();
-                    renderTimbang();
-                });
-            });
-
-            // confirm clear
-            confirmClearArea.style.display = state.confirmClear ? 'block' : 'none';
-        }
-
-        // ---------- RENDER: TALAAN ----------
-        function renderTalaan() {
-            const groups = {};
-            for (const tx of state.transactions) {
-                const k = dateKey(tx.ts);
-                if (!groups[k]) groups[k] = [];
-                groups[k].push(tx);
-            }
-
-            if (state.transactions.length === 0) {
-                historyList.innerHTML = `
-                    <div style="text-align:center;padding:60px 20px;color:var(--muted);">
-                        <svg width="36" height="36" style="display:block;margin:0 auto 10px;opacity:0.4;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 8v8M8 12h8"/></svg>
-                        <div class="js-display" style="font-size:18px;font-weight:700;text-transform:uppercase;">Walang talaan pa</div>
-                        <div style="font-size:13px;margin-top:4px;">Magtimbang sa unang tab para magsimula.</div>
-                    </div>
-                `;
-                return;
-            }
-
-            let html = '';
-            for (const [day, txs] of Object.entries(groups)) {
-                const bought = txs.filter(t => t.type === 'buy').reduce((s, t) => s + t.total, 0);
-                const sold = txs.filter(t => t.type === 'sell').reduce((s, t) => s + t.total, 0);
-                const kilosIn = txs.filter(t => t.type === 'buy').reduce((s, t) => s + t.items.reduce((a, i) => a + i.kilos,
-                    0), 0);
-
-                html += `<div style="margin-bottom:18px;">
-                    <div class="js-display" style="font-size:15px;font-weight:700;text-transform:uppercase;padding:0 4px 6px;">${day}</div>
-                    <div class="sum-grid" style="margin-bottom:8px;">
-                        <div style="background:var(--card);border:1px solid var(--line);border-radius:10px;padding:8px 10px;">
-                            <div style="font-size:11px;color:var(--muted);text-transform:uppercase;">Nabili</div>
-                            <div class="js-mono" style="font-size:14px;color:var(--amberDark);">${peso(bought)}</div>
-                        </div>
-                        <div style="background:var(--card);border:1px solid var(--line);border-radius:10px;padding:8px 10px;">
-                            <div style="font-size:11px;color:var(--muted);text-transform:uppercase;">Nabenta</div>
-                            <div class="js-mono" style="font-size:14px;color:var(--green);">${peso(sold)}</div>
-                        </div>
-                        <div style="background:var(--card);border:1px solid var(--line);border-radius:10px;padding:8px 10px;">
-                            <div style="font-size:11px;color:var(--muted);text-transform:uppercase;">Kilo pasok</div>
-                            <div class="js-mono" style="font-size:14px;color:var(--ink);">${kg(kilosIn)}</div>
-                        </div>
-                    </div>
-                    <div style="background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden;">`;
-
-                txs.forEach((tx, i) => {
-                    const color = tx.type === 'buy' ? 'var(--amberDark)' : 'var(--green)';
-                    const label = tx.type === 'buy' ? 'Bili' : 'Benta';
-                    html += `
-                        <div style="display:flex;align-items:center;gap:8px;padding:10px 12px;border-top:${i ? '1px solid var(--line)' : 'none'};">
-                            <div style="flex:1;">
-                                <div style="display:flex;justify-content:space-between;align-items:baseline;">
-                                    <span class="js-display" style="font-size:14px;font-weight:700;text-transform:uppercase;color:${color};">${label} · ${timeStr(tx.ts)}</span>
-                                    <span class="js-mono" style="font-size:15px;">${peso(tx.total)}</span>
-                                </div>
-                                <div style="font-size:12px;color:var(--muted);margin-top:2px;">${tx.items.map(it => it.name + ' ' + kg(it.kilos)).join(' · ')}</div>
-                            </div>
-                            <button class="print-receipt-btn" data-txid="${tx.id}" style="background:none;border:1px solid var(--line);border-radius:8px;cursor:pointer;color:var(--muted);padding:6px 8px;">🖨</button>
-                        </div>
-                    `;
-                });
-
-                html += `</div></div>`;
-            }
-            historyList.innerHTML = html;
-
-            // print receipt buttons
-            historyList.querySelectorAll('.print-receipt-btn').forEach(el => {
-                el.addEventListener('click', () => {
-                    const id = el.dataset.txid;
-                    const tx = state.transactions.find(t => t.id === id);
-                    if (tx) triggerPrint('receipt', tx);
-                });
-            });
-        }
-
-        // ---------- RENDER: ULAT ----------
-        function renderUlat() {
-            // period buttons
-            periodBtns.innerHTML = '';
-            PERIODS.forEach(p => {
-                const active = state.period === p.k;
-                const btn = document.createElement('button');
-                btn.className = 'js-display js-btn';
-                btn.dataset.period = p.k;
-                btn.style.cssText =
-                    `flex:1;min-width:70px;padding:9px 0;font-size:15px;font-weight:700;text-transform:uppercase;border-radius:10px;cursor:pointer;border:2px solid ${active ? 'var(--ink)' : 'var(--line)'};background:${active ? 'var(--ink)' : 'var(--card)'};color:${active ? '#fff' : 'var(--muted)'};`;
-                btn.textContent = p.label;
-                btn.addEventListener('click', () => {
-                    state.period = p.k;
-                    renderUlat();
-                });
-                periodBtns.appendChild(btn);
-            });
-
-            const txs = filterByPeriod(state.period);
-            const agg = aggregate(txs);
-
-            // stats
-            const stats = [
-                { label: 'Nabili (labas)', val: peso(agg.buyCash), col: 'var(--amberDark)' },
-                { label: 'Nabenta (pasok)', val: peso(agg.sellCash), col: 'var(--green)' },
-                { label: 'Gross tubo', val: peso(agg.sellCash - agg.buyCash), col: agg.sellCash - agg.buyCash >=
-                        0 ? 'var(--green)' : 'var(--rust)' },
-                { label: 'Kilo pasok', val: kg(agg.kIn), col: 'var(--ink)' },
-                { label: 'Kilo labas', val: kg(agg.kOut), col: 'var(--ink)' },
-                { label: 'Transaksyon', val: String(agg.count), col: 'var(--ink)' },
-            ];
-            reportStats.innerHTML = '';
-            stats.forEach(s => {
-                const div = document.createElement('div');
-                div.style.cssText =
-                    'background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px 12px;';
-                div.innerHTML =
-                    `<div style="font-size:11px;color:var(--muted);text-transform:uppercase;">${s.label}</div><div class="js-mono" style="font-size:17px;color:${s.col};">${s.val}</div>`;
-                reportStats.appendChild(div);
-            });
-
-            // rows
-            if (agg.rows.length === 0) {
-                reportRows.innerHTML =
-                    `<div style="border:2px dashed var(--line);border-radius:12px;padding:24px 12px;text-align:center;color:var(--muted);font-size:13px;">Walang transaksyon sa panahong ito.</div>`;
-            } else {
-                let html =
-                    `<div style="background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden;">
-                    <div style="display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr 1fr;gap:4px;padding:9px 12px;background:var(--bg);border-bottom:1px solid var(--line);">
-                        <div class="js-display" style="font-size:12px;font-weight:700;text-transform:uppercase;color:var(--muted);">Item</div>
-                        <div class="js-display" style="font-size:12px;font-weight:700;text-transform:uppercase;color:var(--muted);text-align:right;">Kilo bili</div>
-                        <div class="js-display" style="font-size:12px;font-weight:700;text-transform:uppercase;color:var(--muted);text-align:right;">₱ Bili</div>
-                        <div class="js-display" style="font-size:12px;font-weight:700;text-transform:uppercase;color:var(--muted);text-align:right;">Kilo benta</div>
-                        <div class="js-display" style="font-size:12px;font-weight:700;text-transform:uppercase;color:var(--muted);text-align:right;">₱ Benta</div>
-                    </div>`;
-                agg.rows.forEach((r, i) => {
-                    html += `
-                        <div style="display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr 1fr;gap:4px;padding:9px 12px;border-top:${i ? '1px solid var(--line)' : 'none'};">
-                            <div style="font-size:13px;font-weight:600;">${r.name}</div>
-                            <div class="js-mono" style="font-size:13px;text-align:right;">${num(r.kIn)}</div>
-                            <div class="js-mono" style="font-size:13px;text-align:right;color:var(--amberDark);">${num(r.pIn)}</div>
-                            <div class="js-mono" style="font-size:13px;text-align:right;">${num(r.kOut)}</div>
-                            <div class="js-mono" style="font-size:13px;text-align:right;color:var(--green);">${num(r.pOut)}</div>
-                        </div>
-                    `;
-                });
-                html += `</div>`;
-                reportRows.innerHTML = html;
-            }
-
-            // print button
-            const canPrint = agg.count > 0;
-            printReportBtn.style.background = canPrint ? 'var(--ink)' : 'var(--line)';
-            printReportBtn.style.color = canPrint ? '#fff' : 'var(--muted)';
-            printReportBtn.style.cursor = canPrint ? 'pointer' : 'default';
-            printReportBtn.disabled = !canPrint;
-        }
-
-        // ---------- PRINT ----------
-        function triggerPrint(kind, data) {
-            if (kind === 'receipt') {
-                const tx = data;
-                const shopName = state.settings.shopName || 'JUNKSHOP';
-                const shopInfo = state.settings.shopInfo || '';
-                let html = `<div class="receipt">
-                    <div style="text-align:center;font-weight:700;">${shopName}</div>
-                    ${shopInfo ? `<div style="text-align:center;">${shopInfo}</div>` : ''}
-                    <div style="text-align:center;">${fullStamp(tx.ts)}</div>
-                    <div style="text-align:center;">${tx.type === 'buy' ? '* RESIBO NG BILI *' : '* RESIBO NG BENTA *'}</div>
-                    <div>--------------------------------</div>`;
-                tx.items.forEach(it => {
-                    html +=
-                        `<div style="display:flex;justify-content:space-between;"><span>${it.name} ${num(it.kilos)}kg x ${num(it.price)}</span><span>${num(it.total)}</span></div>`;
-                });
-                html += `
-                    <div>--------------------------------</div>
-                    <div style="display:flex;justify-content:space-between;font-weight:700;"><span>TOTAL</span><span>${peso(tx.total)}</span></div>
-                    <div>--------------------------------</div>
-                    <div style="text-align:center;">Salamat po!</div>
-                </div>`;
-                printArea.innerHTML = html;
-                setTimeout(() => window.print(), 200);
-            } else if (kind === 'report') {
-                const txs = data.txs || filterByPeriod(state.period);
-                const agg = data.agg || aggregate(txs);
-                const shopName = state.settings.shopName || 'JUNKSHOP';
-                const shopInfo = state.settings.shopInfo || '';
-                const pLabel = periodLabel[state.period] || 'Ulat';
-                let html = `<div class="report-doc">
-                    <h2 style="margin:0 0 2px;">${shopName}</h2>
-                    ${shopInfo ? `<div>${shopInfo}</div>` : ''}
-                    <h3 style="margin:8px 0 2px;">${pLabel}</h3>
-                    <div style="margin-bottom:10px;">Na-print: ${fullStamp(new Date())}</div>
-                    <table>
-                        <thead><tr><th>Item</th><th>Kilo Bili</th><th>₱ Bili</th><th>Kilo Benta</th><th>₱ Benta</th></tr></thead>
-                        <tbody>`;
-                agg.rows.forEach(r => {
-                    html +=
-                        `<tr><td>${r.name}</td><td>${num(r.kIn)}</td><td>${num(r.pIn)}</td><td>${num(r.kOut)}</td><td>${num(r.pOut)}</td></tr>`;
-                });
-                html += `
-                        <tr style="font-weight:700;"><td>TOTAL</td><td>${num(agg.kIn)}</td><td>${num(agg.buyCash)}</td><td>${num(agg.kOut)}</td><td>${num(agg.sellCash)}</td></tr>
-                    </tbody></table>
-                    <div style="margin-top:10px;">
-                        <div>Bilang ng transaksyon: ${agg.count}</div>
-                        <div>Perang lumabas (bili): ${peso(agg.buyCash)}</div>
-                        <div>Perang pumasok (benta): ${peso(agg.sellCash)}</div>
-                        <div style="font-weight:700;">Gross na tubo: ${peso(agg.sellCash - agg.buyCash)}</div>
-                    </div>
-                </div>`;
-                printArea.innerHTML = html;
-                setTimeout(() => window.print(), 200);
-            }
-        }
-
-        // ---------- TAB SWITCHING ----------
-        function switchTab(tab) {
-            state.tab = tab;
-            const tabs = { timbang: tabTimbang, presyo: tabPresyo, talaan: tabTalaan, ulat: tabUlat };
-            Object.keys(tabs).forEach(k => {
-                tabs[k].style.display = k === tab ? '' : 'none';
-            });
-            navBtns.forEach(btn => {
-                const t = btn.dataset.tab;
-                btn.style.color = t === tab ? 'var(--amberDark)' : 'var(--muted)';
-            });
-            if (tab === 'timbang') renderTimbang();
-            if (tab === 'presyo') renderPresyo();
-            if (tab === 'talaan') renderTalaan();
-            if (tab === 'ulat') renderUlat();
-        }
-
-        // ---------- INIT ----------
-        function init() {
-            // load
-            const hasData = loadFromStorage();
-            state.loading = false;
-
-            // header date
-            headerDate.textContent = new Date().toLocaleDateString('en-PH', { month: 'short', day: 'numeric',
-                year: 'numeric' });
-
-            // shop name display
-            shopNameDisplay.textContent = state.settings.shopName || 'JUNKSHOP';
-
-            // nav
-            navBtns.forEach(btn => {
-                btn.addEventListener('click', () => {
-                    switchTab(btn.dataset.tab);
-                });
-            });
-
-            // mode buttons
-            $$('.mode-btn').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    state.mode = btn.dataset.mode;
-                    state.selectedId = null;
-                    state.kilosStr = '';
-                    state.ticket = [];
-                    renderTimbang();
-                });
-            });
-
-            // numeric pad
-            $$('.num-btn').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    const key = btn.dataset.key;
-                    if (key === 'back') {
-                        state.kilosStr = state.kilosStr.slice(0, -1);
-                    } else if (key === '.') {
-                        if (!state.kilosStr.includes('.')) {
-                            state.kilosStr = (state.kilosStr || '0') + '.';
-                        }
-                    } else {
-                        const s = state.kilosStr;
-                        if (s === '0') state.kilosStr = key;
-                        else if (s.length < 8) state.kilosStr = s + key;
-                    }
-                    renderTimbang();
-                });
-            });
-
-            // add to ticket
-            addToTicketBtn.addEventListener('click', addToTicket);
-
-            // settings inputs
-            settingsShopName.addEventListener('input', () => {
-                state.settings.shopName = settingsShopName.value || 'JUNKSHOP';
-                shopNameDisplay.textContent = state.settings.shopName;
-                debounceSave();
-            });
-            settingsShopInfo.addEventListener('input', () => {
-                state.settings.shopInfo = settingsShopInfo.value;
-                debounceSave();
-            });
-            settingsAutoPrint.addEventListener('change', () => {
-                state.settings.autoPrint = settingsAutoPrint.checked;
-                debounceSave();
-            });
-
-            // add material
-            addMaterialBtn.addEventListener('click', () => {
-                state.materials.push({ id: 'mat_' + Date.now(), name: 'Bagong item', buy: 0, sell: 0 });
-                debounceSave();
-                renderPresyo();
-                renderTimbang();
-            });
-
-            // reset prices
-            resetPricesBtn.addEventListener('click', () => {
-                state.materials = JSON.parse(JSON.stringify(DEFAULT_MATERIALS));
-                state.selectedId = null;
-                debounceSave();
-                renderPresyo();
-                renderTimbang();
-                showToast('Naibalik ang default na presyo');
-            });
-
-            // clear all
-            clearAllBtn.addEventListener('click', () => {
-                state.confirmClear = true;
-                renderPresyo();
-            });
-            confirmClearYes.addEventListener('click', () => {
-                state.transactions = [];
-                state.confirmClear = false;
-                debounceSave();
-                renderPresyo();
-                renderTalaan();
-                renderUlat();
-                showToast('Nabura ang lahat ng talaan');
-            });
-            confirmClearNo.addEventListener('click', () => {
-                state.confirmClear = false;
-                renderPresyo();
-            });
-
-            // print report
-            printReportBtn.addEventListener('click', () => {
-                const txs = filterByPeriod(state.period);
-                const agg = aggregate(txs);
-                if (agg.count > 0) triggerPrint('report', { txs, agg });
-            });
-
-            // Keyboard shortcut: Enter to add to ticket
-            document.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter' && state.tab === 'timbang') {
-                    const sel = getSelected();
-                    if (sel && getKilos() > 0) addToTicket();
-                }
-            });
-
-            // initial render
-            switchTab('timbang');
-
-            // save on page unload
-            window.addEventListener('beforeunload', () => {
-                saveToStorage();
-            });
-
-            // PWA: register service worker via blob
-            registerServiceWorker();
-
-            console.log('JunkShop POS ready');
-        }
-
-        // ---------- PWA: SERVICE WORKER ----------
-        function registerServiceWorker() {
-            if (!('serviceWorker' in navigator)) return;
-            const swCode = `
-                self.addEventListener('install', e => {
-                    e.waitUntil(
-                        caches.open('junkshop-v1').then(c => c.addAll(['/']))
-                    );
-                });
-                self.addEventListener('fetch', e => {
-                    e.respondWith(
-                        caches.match(e.request).then(r => r || fetch(e.request).catch(() => new Response('Offline', {status:503})))
-                    );
-                });
-                self.addEventListener('activate', e => {
-                    e.waitUntil(clients.claim());
-                });
-            `;
-            try {
-                const blob = new Blob([swCode], { type: 'application/javascript' });
-                const url = URL.createObjectURL(blob);
-                navigator.serviceWorker.register(url, { scope: '/' }).catch(() => {});
-            } catch (_) {}
-        }
-
-        // ---------- START ----------
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', init);
-        } else {
-            init();
-        }
-
-    })();
+"use strict";
+// ================= data =================
+const DEFAULT_MATERIALS = [
+  { id:"bakal", name:"Bakal", buy:10, sell:13 },
+  { id:"tanso", name:"Tanso", buy:350, sell:380 },
+  { id:"aluminum", name:"Aluminum", buy:45, sell:55 },
+  { id:"lata", name:"Lata", buy:7, sell:9 },
+  { id:"stainless", name:"Stainless", buy:35, sell:45 },
+  { id:"yero", name:"Yero", buy:7, sell:9 },
+  { id:"karton", name:"Karton", buy:4, sell:5.5 },
+  { id:"papel", name:"Papel (puti)", buy:6, sell:8 },
+  { id:"plastik", name:"Plastik (assorted)", buy:8, sell:11 },
+  { id:"bote", name:"Bote", buy:1.5, sell:2.5 },
+  { id:"baterya", name:"Baterya", buy:35, sell:42 },
+];
+const DEFAULT_SETTINGS = { shopName:"JUNKSHOP", shopInfo:"", autoPrint:false };
+const KEY = "junkshop:data";
+
+let D = { materials: DEFAULT_MATERIALS.map(m=>({...m})), transactions: [], settings: {...DEFAULT_SETTINGS} };
+try {
+  const raw = localStorage.getItem(KEY);
+  if (raw) {
+    const p = JSON.parse(raw);
+    if (Array.isArray(p.materials) && p.materials.length) D.materials = p.materials;
+    if (Array.isArray(p.transactions)) D.transactions = p.transactions;
+    if (p.settings) D.settings = { ...DEFAULT_SETTINGS, ...p.settings };
+  }
+} catch(e) {}
+
+let saveTimer = null;
+function save(){
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(() => {
+    try { localStorage.setItem(KEY, JSON.stringify(D)); }
+    catch(e){ toast("Hindi na-save — puno ang storage", true); }
+  }, 300);
+}
+
+// ui state
+let S = { tab:"timbang", mode:"buy", selectedId:null, kilosStr:"", ticket:[], period:"day", confirmClear:false };
+
+// ================= helpers =================
+const $ = (sel) => document.querySelector(sel);
+const esc = (s) => String(s??"").replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const peso = (n) => "\u20B1" + (Number(n)||0).toLocaleString("en-PH",{minimumFractionDigits:2,maximumFractionDigits:2});
+const num  = (n) => (Number(n)||0).toLocaleString("en-PH",{maximumFractionDigits:2});
+const kgf  = (n) => num(n) + " kg";
+const dateKey = (ts) => new Date(ts).toLocaleDateString("en-PH",{year:"numeric",month:"short",day:"numeric",weekday:"short"});
+const timeStr = (ts) => new Date(ts).toLocaleTimeString("en-PH",{hour:"numeric",minute:"2-digit"});
+const fullStamp = (ts) => new Date(ts).toLocaleString("en-PH",{month:"short",day:"numeric",year:"numeric",hour:"numeric",minute:"2-digit"});
+const startOfDay = (d) => { const x=new Date(d); x.setHours(0,0,0,0); return x; };
+
+let toastTimer=null;
+function toast(msg, bad){
+  const t = $("#toast");
+  t.textContent = msg;
+  t.className = bad ? "bad" : "";
+  t.style.display = "block";
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>{ t.style.display="none"; }, 2200);
+}
+
+function mat(id){ return D.materials.find(m=>m.id===id) || null; }
+function unitPrice(m){ return m ? (S.mode==="buy" ? m.buy : m.sell) : 0; }
+
+// ================= reports =================
+const PERIODS = [ {k:"day",label:"Ngayon"}, {k:"week",label:"7 Araw"}, {k:"month",label:"Buwan"}, {k:"all",label:"Lahat"} ];
+const periodLabel = { day:"Ulat Ngayong Araw", week:"Ulat — Huling 7 Araw", month:"Ulat Ngayong Buwan", all:"Ulat — Lahat" };
+
+function filterByPeriod(p){
+  const now = new Date();
+  return D.transactions.filter(tx => {
+    const d = new Date(tx.ts);
+    if (p==="day")   return startOfDay(d).getTime() === startOfDay(now).getTime();
+    if (p==="week")  return d >= new Date(startOfDay(now).getTime() - 6*86400000);
+    if (p==="month") return d.getMonth()===now.getMonth() && d.getFullYear()===now.getFullYear();
+    return true;
+  });
+}
+function aggregate(txs){
+  const rows = {};
+  let buyCash=0, sellCash=0, kIn=0, kOut=0;
+  for (const tx of txs) for (const it of tx.items){
+    const r = rows[it.name] = rows[it.name] || { name:it.name, kIn:0, pIn:0, kOut:0, pOut:0 };
+    if (tx.type==="buy"){ r.kIn+=it.kilos; r.pIn+=it.total; buyCash+=it.total; kIn+=it.kilos; }
+    else { r.kOut+=it.kilos; r.pOut+=it.total; sellCash+=it.total; kOut+=it.kilos; }
+  }
+  return { rows:Object.values(rows).sort((a,b)=>(b.pIn+b.pOut)-(a.pIn+a.pOut)), buyCash, sellCash, kIn, kOut, count:txs.length };
+}
+
+// ================= printing =================
+function printReceipt(tx){
+  const st = D.settings;
+  const sep = "--------------------------------";
+  let h = '<div class="receipt">';
+  h += '<div class="c b">'+esc(st.shopName||"JUNKSHOP")+'</div>';
+  if (st.shopInfo) h += '<div class="c">'+esc(st.shopInfo)+'</div>';
+  h += '<div class="c">'+esc(fullStamp(tx.ts))+'</div>';
+  h += '<div class="c">'+(tx.type==="buy" ? "* RESIBO NG BILI *" : "* RESIBO NG BENTA *")+'</div>';
+  h += '<div>'+sep+'</div>';
+  for (const it of tx.items){
+    h += '<div class="ln"><span>'+esc(it.name)+' '+num(it.kilos)+'kg x '+num(it.price)+'</span><span>'+num(it.total)+'</span></div>';
+  }
+  h += '<div>'+sep+'</div>';
+  h += '<div class="ln b"><span>TOTAL</span><span>'+peso(tx.total)+'</span></div>';
+  h += '<div>'+sep+'</div><div class="c">Salamat po!</div></div>';
+  $("#print-area").innerHTML = h;
+  setTimeout(()=>window.print(), 100);
+}
+
+function printReport(){
+  const txs = filterByPeriod(S.period);
+  const a = aggregate(txs);
+  if (!a.count) return;
+  const st = D.settings;
+  let h = '<div class="report-doc">';
+  h += '<h2 style="margin:0 0 2px">'+esc(st.shopName||"JUNKSHOP")+'</h2>';
+  if (st.shopInfo) h += '<div>'+esc(st.shopInfo)+'</div>';
+  h += '<h3 style="margin:8px 0 2px">'+periodLabel[S.period]+'</h3>';
+  h += '<div>Na-print: '+esc(fullStamp(new Date()))+'</div>';
+  h += '<table><thead><tr><th>Item</th><th>Kilo Bili</th><th>&#8369; Bili</th><th>Kilo Benta</th><th>&#8369; Benta</th></tr></thead><tbody>';
+  for (const r of a.rows){
+    h += '<tr><td>'+esc(r.name)+'</td><td>'+num(r.kIn)+'</td><td>'+num(r.pIn)+'</td><td>'+num(r.kOut)+'</td><td>'+num(r.pOut)+'</td></tr>';
+  }
+  h += '<tr style="font-weight:700"><td>TOTAL</td><td>'+num(a.kIn)+'</td><td>'+num(a.buyCash)+'</td><td>'+num(a.kOut)+'</td><td>'+num(a.sellCash)+'</td></tr>';
+  h += '</tbody></table>';
+  h += '<div style="margin-top:10px">';
+  h += '<div>Bilang ng transaksyon: '+a.count+'</div>';
+  h += '<div>Perang lumabas (bili): '+peso(a.buyCash)+'</div>';
+  h += '<div>Perang pumasok (benta): '+peso(a.sellCash)+'</div>';
+  h += '<div style="font-weight:700">Gross na tubo: '+peso(a.sellCash - a.buyCash)+'</div>';
+  h += '</div></div>';
+  $("#print-area").innerHTML = h;
+  setTimeout(()=>window.print(), 100);
+}
+
+// ================= actions =================
+function press(k){
+  if (k==="back") S.kilosStr = S.kilosStr.slice(0,-1);
+  else if (k===".") { if (!S.kilosStr.includes(".")) S.kilosStr = (S.kilosStr||"0")+"."; }
+  else S.kilosStr = (S.kilosStr==="0" ? k : (S.kilosStr+k).slice(0,8));
+  updateLCD();
+}
+function updateLCD(){
+  const m = mat(S.selectedId);
+  const kv = parseFloat(S.kilosStr)||0;
+  const up = unitPrice(m);
+  const el = $("#lcd"); if (!el) return;
+  el.querySelector(".nm").textContent = m ? m.name.toUpperCase() : "PUMILI NG ITEM";
+  el.querySelector(".up").textContent = m ? peso(up)+"/kg" : "--";
+  el.querySelector(".kv").innerHTML = esc(S.kilosStr||"0") + '<small> kg</small>';
+  const tot = el.querySelector(".total");
+  tot.textContent = "= " + peso(kv*up);
+  tot.classList.toggle("on", kv>0);
+  const add = $("#add-btn"); if (add) add.disabled = !(m && kv>0);
+}
+function addToTicket(){
+  const m = mat(S.selectedId);
+  const kv = parseFloat(S.kilosStr)||0;
+  if (!m || kv<=0) return;
+  const up = unitPrice(m);
+  S.ticket.push({ uid:Date.now()+Math.random(), matId:m.id, name:m.name, kilos:kv, price:up, total:kv*up });
+  S.kilosStr=""; S.selectedId=null;
+  render();
+}
+function completeTicket(){
+  if (!S.ticket.length) return;
+  const total = S.ticket.reduce((s,it)=>s+it.total,0);
+  const tx = {
+    id:"tx_"+Date.now(), type:S.mode,
+    items:S.ticket.map(({uid, ...rest})=>rest),
+    total, ts:new Date().toISOString(),
+  };
+  D.transactions.unshift(tx);
+  S.ticket=[];
+  save();
+  render();
+  toast(tx.type==="buy" ? "Bayaran ang suki: "+peso(tx.total) : "Benta naitala: "+peso(tx.total));
+  if (D.settings.autoPrint) printReceipt(tx);
+}
+
+// ================= render =================
+function render(){
+  $("#hdr-title").innerHTML = esc(D.settings.shopName||"Junkshop") + ' <span>POS</span>';
+  $("#hdr-date").textContent = new Date().toLocaleDateString("en-PH",{month:"short",day:"numeric",year:"numeric"});
+  renderNav();
+  const v = $("#view");
+  if (S.tab==="timbang") renderTimbang(v);
+  else if (S.tab==="presyo") renderPresyo(v);
+  else if (S.tab==="talaan") renderTalaan(v);
+  else renderUlat(v);
+}
+
+function renderNav(){
+  const tabs = [
+    {k:"timbang",label:"Timbang",ic:"\u2696\uFE0F"},
+    {k:"presyo",label:"Presyo",ic:"\uD83C\uDFF7\uFE0F"},
+    {k:"talaan",label:"Talaan",ic:"\uD83D\uDCCB"},
+    {k:"ulat",label:"Ulat",ic:"\uD83D\uDCCA"},
+  ];
+  $("#nav").innerHTML = tabs.map(t =>
+    '<button class="'+(S.tab===t.k?"on":"")+'" data-tab="'+t.k+'">'+
+    '<div class="ic">'+t.ic+'</div><div class="display lb">'+t.label+'</div></button>').join("");
+  $("#nav").querySelectorAll("button").forEach(b => b.onclick = () => { S.tab=b.dataset.tab; S.confirmClear=false; render(); });
+}
+
+function renderTimbang(v){
+  const m = mat(S.selectedId);
+  const kv = parseFloat(S.kilosStr)||0;
+  const up = unitPrice(m);
+  const total = S.ticket.reduce((s,it)=>s+it.total,0);
+
+  let h = '<div class="tg">';
+  // toggle
+  h += '<div class="a-toggle toggle-row">';
+  h += '<button class="display toggle-btn buy'+(S.mode==="buy"?" on":"")+'" data-mode="buy">BILI (pasok)</button>';
+  h += '<button class="display toggle-btn sell'+(S.mode==="sell"?" on":"")+'" data-mode="sell">BENTA (labas)</button>';
+  h += '</div>';
+  // lcd
+  h += '<div class="a-lcd lcd" id="lcd">';
+  h += '<div class="row1 mono"><span class="nm">'+(m?esc(m.name.toUpperCase()):"PUMILI NG ITEM")+'</span><span class="up">'+(m?peso(up)+"/kg":"--")+'</span></div>';
+  h += '<div class="mono kilos kv">'+esc(S.kilosStr||"0")+'<small> kg</small></div>';
+  h += '<div class="mono total'+(kv>0?" on":"")+'">= '+peso(kv*up)+'</div>';
+  h += '</div>';
+  // chips
+  h += '<div class="a-chips mat-grid">';
+  for (const mm of D.materials){
+    h += '<button class="chip'+(S.selectedId===mm.id?" on":"")+'" data-mat="'+esc(mm.id)+'">'+
+         '<div class="display nm">'+esc(mm.name)+'</div>'+
+         '<div class="mono pr">'+peso(S.mode==="buy"?mm.buy:mm.sell)+'</div></button>';
+  }
+  h += '</div>';
+  // pad
+  h += '<div class="a-pad"><div class="pad">';
+  for (const k of ["7","8","9","4","5","6","1","2","3",".","0","back"]){
+    h += '<button class="mono" data-key="'+k+'">'+(k==="back"?"\u232B":k)+'</button>';
+  }
+  h += '</div><button class="display add-btn" id="add-btn"'+((m&&kv>0)?"":" disabled")+'>Idagdag sa resibo</button></div>';
+  // ticket
+  h += '<div class="a-ticket">';
+  if (S.ticket.length){
+    h += '<div class="card">';
+    for (const it of S.ticket){
+      h += '<div class="ticket-row"><div class="info">'+
+           '<div class="display nm">'+esc(it.name)+'</div>'+
+           '<div class="mono sub">'+kgf(it.kilos)+' \u00D7 '+peso(it.price)+'</div></div>'+
+           '<div class="mono">'+peso(it.total)+'</div>'+
+           '<button class="xbtn" data-del="'+it.uid+'">\u2715</button></div>';
+    }
+    h += '<button class="display pay-btn '+S.mode+'" id="pay-btn">'+(S.mode==="buy"?"Bayaran":"Benta")+' — '+peso(total)+'</button></div>';
+  } else {
+    h += '<div class="empty-box">Walang laman ang resibo. Pumili ng item at i-type ang kilo.</div>';
+  }
+  h += '</div></div>';
+  v.innerHTML = h;
+
+  v.querySelectorAll("[data-mode]").forEach(b => b.onclick = () => { S.mode=b.dataset.mode; S.selectedId=null; S.kilosStr=""; S.ticket=[]; render(); });
+  v.querySelectorAll("[data-mat]").forEach(b => b.onclick = () => {
+    S.selectedId = b.dataset.mat;
+    v.querySelectorAll("[data-mat]").forEach(x => x.classList.toggle("on", x.dataset.mat===S.selectedId));
+    updateLCD();
+  });
+  v.querySelectorAll("[data-key]").forEach(b => b.onclick = () => press(b.dataset.key));
+  const add = $("#add-btn"); if (add) add.onclick = addToTicket;
+  const pay = $("#pay-btn"); if (pay) pay.onclick = completeTicket;
+  v.querySelectorAll("[data-del]").forEach(b => b.onclick = () => { S.ticket = S.ticket.filter(x => String(x.uid)!==b.dataset.del); render(); });
+}
+
+function renderPresyo(v){
+  let h = '<div style="max-width:560px;margin:0 auto">';
+  h += '<div class="settings-card"><div class="display hd">Detalye ng shop (lalabas sa resibo)</div>';
+  h += '<input type="text" id="set-name" placeholder="Pangalan ng shop" value="'+esc(D.settings.shopName)+'">';
+  h += '<input type="text" id="set-info" placeholder="Address / contact no. (optional)" value="'+esc(D.settings.shopInfo)+'">';
+  h += '<label class="chk"><input type="checkbox" id="set-autoprint"'+(D.settings.autoPrint?" checked":"")+'> I-print agad ang resibo pagkatapos ng bawat transaksyon</label></div>';
+
+  h += '<div class="price-head display"><div>Item</div><div>Bili/kg</div><div>Benta/kg</div><div></div></div>';
+  h += '<div class="card" id="price-list">';
+  for (const m of D.materials){
+    h += '<div class="price-row" data-id="'+esc(m.id)+'">'+
+         '<input class="nm" data-f="name" value="'+esc(m.name)+'">'+
+         '<input class="pr mono" data-f="buy" type="number" inputmode="decimal" value="'+m.buy+'">'+
+         '<input class="pr mono" data-f="sell" type="number" inputmode="decimal" value="'+m.sell+'">'+
+         '<button class="xbtn" data-rm="'+esc(m.id)+'">\uD83D\uDDD1</button></div>';
+  }
+  h += '</div>';
+  h += '<button class="display dash-btn" id="add-mat">+ Dagdag na item</button>';
+  h += '<div class="util-row"><button class="util-reset" id="reset-prices">\u21BA Ibalik ang default</button>'+
+       '<button class="util-danger" id="clear-tx">Burahin ang talaan</button></div>';
+  if (S.confirmClear){
+    h += '<div class="confirm-box">Buburahin ang lahat ng transaksyon. Hindi na ito maibabalik.'+
+         '<div class="btns"><button class="confirm-yes" id="clear-yes">Oo, burahin</button>'+
+         '<button class="confirm-no" id="clear-no">Huwag</button></div></div>';
+  }
+  h += '</div>';
+  v.innerHTML = h;
+
+  $("#set-name").oninput = e => { D.settings.shopName = e.target.value; save(); };
+  $("#set-info").oninput = e => { D.settings.shopInfo = e.target.value; save(); };
+  $("#set-autoprint").onchange = e => { D.settings.autoPrint = e.target.checked; save(); };
+  $("#set-name").onblur = () => render();
+
+  v.querySelectorAll(".price-row input").forEach(inp => {
+    inp.oninput = () => {
+      const id = inp.closest(".price-row").dataset.id;
+      const m = mat(id); if (!m) return;
+      const f = inp.dataset.f;
+      m[f] = f==="name" ? inp.value : (parseFloat(inp.value)||0);
+      save();
+    };
+  });
+  v.querySelectorAll("[data-rm]").forEach(b => b.onclick = () => {
+    D.materials = D.materials.filter(m => m.id!==b.dataset.rm);
+    save(); render();
+  });
+  $("#add-mat").onclick = () => { D.materials.push({id:"mat_"+Date.now(), name:"Bagong item", buy:0, sell:0}); save(); render(); };
+  $("#reset-prices").onclick = () => { D.materials = DEFAULT_MATERIALS.map(m=>({...m})); save(); render(); toast("Naibalik ang default na presyo"); };
+  $("#clear-tx").onclick = () => { S.confirmClear = true; render(); };
+  const cy = $("#clear-yes"); if (cy) cy.onclick = () => { D.transactions=[]; S.confirmClear=false; save(); render(); toast("Nabura ang lahat ng talaan"); };
+  const cn = $("#clear-no"); if (cn) cn.onclick = () => { S.confirmClear=false; render(); };
+}
+
+function renderTalaan(v){
+  if (!D.transactions.length){
+    v.innerHTML = '<div style="text-align:center;padding:60px 20px;color:var(--muted)">'+
+      '<div style="font-size:34px;opacity:.5">\u2696\uFE0F</div>'+
+      '<div class="display" style="font-size:18px">Walang talaan pa</div>'+
+      '<div style="font-size:13px;margin-top:4px">Magtimbang sa unang tab para magsimula.</div></div>';
+    return;
+  }
+  const groups = {};
+  for (const tx of D.transactions){ const k = dateKey(tx.ts); (groups[k]=groups[k]||[]).push(tx); }
+
+  let h = '<div style="max-width:640px;margin:0 auto">';
+  for (const [day, txs] of Object.entries(groups)){
+    const bought = txs.filter(t=>t.type==="buy").reduce((s,t)=>s+t.total,0);
+    const sold = txs.filter(t=>t.type==="sell").reduce((s,t)=>s+t.total,0);
+    const kilosIn = txs.filter(t=>t.type==="buy").reduce((s,t)=>s+t.items.reduce((a,i)=>a+i.kilos,0),0);
+    h += '<div style="margin-bottom:18px"><div class="display day-title">'+esc(day)+'</div>';
+    h += '<div class="sum-grid" style="margin-bottom:8px">';
+    h += '<div class="stat"><div class="lb">Nabili</div><div class="mono vl" style="color:var(--amber-dark)">'+peso(bought)+'</div></div>';
+    h += '<div class="stat"><div class="lb">Nabenta</div><div class="mono vl" style="color:var(--green)">'+peso(sold)+'</div></div>';
+    h += '<div class="stat"><div class="lb">Kilo pasok</div><div class="mono vl">'+kgf(kilosIn)+'</div></div>';
+    h += '</div><div class="card">';
+    for (const tx of txs){
+      h += '<div class="tx-row"><div class="info"><div class="top">'+
+           '<span class="display tag '+tx.type+'">'+(tx.type==="buy"?"Bili":"Benta")+' \u00B7 '+timeStr(tx.ts)+'</span>'+
+           '<span class="mono">'+peso(tx.total)+'</span></div>'+
+           '<div class="sub">'+tx.items.map(it=>esc(it.name)+' '+kgf(it.kilos)).join(" \u00B7 ")+'</div></div>'+
+           '<button class="print-mini" data-print="'+esc(tx.id)+'" title="I-print ang resibo">\uD83D\uDDA8</button></div>';
+    }
+    h += '</div></div>';
+  }
+  h += '</div>';
+  v.innerHTML = h;
+  v.querySelectorAll("[data-print]").forEach(b => b.onclick = () => {
+    const tx = D.transactions.find(t=>t.id===b.dataset.print);
+    if (tx) printReceipt(tx);
+  });
+}
+
+function renderUlat(v){
+  const txs = filterByPeriod(S.period);
+  const a = aggregate(txs);
+  const tubo = a.sellCash - a.buyCash;
+
+  let h = '<div style="max-width:720px;margin:0 auto">';
+  h += '<div class="period-row">';
+  for (const p of PERIODS){
+    h += '<button class="display period-btn'+(S.period===p.k?" on":"")+'" data-period="'+p.k+'">'+p.label+'</button>';
+  }
+  h += '</div>';
+  h += '<div class="rep-grid" style="margin-bottom:14px">';
+  const stats = [
+    ["Nabili (labas)", peso(a.buyCash), "var(--amber-dark)"],
+    ["Nabenta (pasok)", peso(a.sellCash), "var(--green)"],
+    ["Gross tubo", peso(tubo), tubo>=0?"var(--green)":"var(--rust)"],
+    ["Kilo pasok", kgf(a.kIn), "var(--ink)"],
+    ["Kilo labas", kgf(a.kOut), "var(--ink)"],
+    ["Transaksyon", String(a.count), "var(--ink)"],
+  ];
+  for (const [lb,vl,col] of stats){
+    h += '<div class="stat"><div class="lb">'+lb+'</div><div class="mono vl" style="color:'+col+'">'+vl+'</div></div>';
+  }
+  h += '</div>';
+  if (a.rows.length){
+    h += '<div class="card"><div class="rep-head display"><div>Item</div><div>Kilo bili</div><div>\u20B1 Bili</div><div>Kilo benta</div><div>\u20B1 Benta</div></div>';
+    for (const r of a.rows){
+      h += '<div class="rep-row"><div style="font-weight:600">'+esc(r.name)+'</div>'+
+           '<div class="mono">'+num(r.kIn)+'</div><div class="mono" style="color:var(--amber-dark)">'+num(r.pIn)+'</div>'+
+           '<div class="mono">'+num(r.kOut)+'</div><div class="mono" style="color:var(--green)">'+num(r.pOut)+'</div></div>';
+    }
+    h += '</div>';
+  } else {
+    h += '<div class="empty-box">Walang transaksyon sa panahong ito.</div>';
+  }
+  h += '<button class="display big-print" id="print-report"'+(a.count?"":" disabled")+'>\uD83D\uDDA8 I-print ang ulat</button>';
+  h += '</div>';
+  v.innerHTML = h;
+
+  v.querySelectorAll("[data-period]").forEach(b => b.onclick = () => { S.period=b.dataset.period; render(); });
+  $("#print-report").onclick = printReport;
+}
+
+// ================= PWA =================
+// Manifest built at runtime so it works on any GitHub Pages URL.
+(function(){
+  try {
+  const manifest = {
+    name: "Junkshop POS",
+    short_name: "Junkshop",
+    description: "POS para sa junkshop — timbang, presyo, resibo, at ulat.",
+    start_url: location.href.split("#")[0].split("?")[0],
+    scope: location.href.replace(/[^/]*$/, ""),
+    display: "standalone",
+    orientation: "portrait",
+    background_color: "#E9E7E1",
+    theme_color: "#E8930C",
+    icons: [
+      { src: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMAAAADACAYAAABS3GwHAAADh0lEQVR42u3dTW4TTRSG0a6ShxHjLIKtWWIpSNkai8gYeR5GTMBK/NM/des9Z4g+hS/d9/GtBhO35QDvby8fC/zj9Xxpe/+ezcCTHEQz9CTH0Aw9yTF0w081a85aM/gkb4Nu+EneBs3gk7wNuuEneRt0w09yBN3wkxxBN/wkR9ANP8kRdMNPcgTdJSJZ9+pP8hbohp/kCByBcATy6k/qFuiGn+QIHIFwBIL4ABx/SDwG2QDYABAdgOMPqccgGwAbAAQAgZrzPzYACAAEAAKAFCeX4Bjff37779d+/fjtwuzMnwINMPhCcAQy/A/8dwhguuEXgQDih18EAgABJL/62wICAAGAAEAAIIBynv1bXX8rLAAQQOIW8OovgNgIDL8AYiMw/AKwCRAACAAEANso808ivSvSs44NAAKAsCOQ44+jkA0AAgABgABgDSV/Nmj199N89VBf+fur9gcWNgCOQCAAEAAIAAQAAgABgABAACAAEAAIAAQAAgABgABAACAAEAAIAAQAAgABgABAAHC0Ej8a0UeL1lHtXtkAOAKBI9AGjvwpyDP/BGb3ygYAAYAAYNQAvjq7bfVpIs7/7pUNABUCWPuVxYdqu1c2AIwSwC1nuLVeCW75Os7/7tWQG+DZC+vo4149or2/vXyMdtHuKX+rr3vktTj6/zPpXu0WwCPlf3YR1vxaAsi9V0O/HdqxJudYNO1D8AivbB583athHoL3/gYNv3s1VAB7fqOG370a9hng7ze8xdnR4LtXQ2+ALS+A4XevSmyAtV9hDL57VTaAaxfG2xrqbIPK9+pU4QLjQXnaZwAQAAgABAACAAGAAEAAIAAQAAgABAACAAGAAEAAIAAQAAgABAACAAGAAEAAIAAQAPF2/YwwsAFAADCGU+I37dMnr0v8idw2AI5AIAAQAAgABAACgMl5KwQ2AAgABAACAAGAAEAAIAAQAAgABAACgPoBvJ4vzWUg0ev50mwAHIFAAJAagOcAEs//NgA2gEuAAByDCDz+2ADYAC4BAnAMIvD4c3UDiICU4XcEwhHo1lJgtlf/TzeACJh9+B2BcAR6tByo/up/0wYQAbMO/81HIBEw4/Df9QwgAmYb/rsfgkXATMN/dwAiYKbhX5ZleWqYfbwSVQf/4Q1gGzDL8D+9AWwDqg7+KhvANqDy8K+6AWwEqgz9LgGIgQqnikOOLYJglGP0H77TeUvxNTD0AAAAAElFTkSuQmCC", sizes: "192x192", type: "image/png", purpose: "any" },
+      { src: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAgAAAAIACAYAAAD0eNT6AAALkklEQVR42u3dTU4j6RKGUecnDy3GLIKtIbEUJG+NRXiMmLtGJZWqq7sayJ/44j1nfHXLTjIzngyDezmxmtv1cncUALbz+PyxOArrcCANeQBxIAAw7AFEgQAw8AEQBALA0AdADAgAQx8AMSAADH4AhIAAMPQBEAMCwOAHQAgIAIMfACEgAAx+AISAADD4ARACAsDgB0AIrGsY/gCQN5MWBxkA8rYBU7xQgx8AIbCu8h8BGP4AzGaG2TUcQADIm2GLgwYA26r4kUC5DYDhD4BtQFgAGP4AiIB9LA4KAOyrwkcCh28ADH8AbAPCAsDwB0AEhAWA4Q+ACDhuFo60NwwAIuCAADD8AeD42Ti6v0EAEAEHBoDhDwB1ZuXo9oYAQAQUCADDHwDqzc4x+xsAABFQKAAMfwCoO0vHbC8YAERA4Q0AAFDX6gHg6R8A6s/WUf0FAgDrz9hR9YUBANvNWr8DAACBVgkAT/8AMNcWYFR5IQDAfrN3HP0CAID9Z7DfAQCAQF8OAE//ADDvFsAGAABsADz9A0DCFmDs9Q8BAHUiwEcAABDoUwHg6R8AemwBbAAAwAbA0z8AJGwBbAAAwAbA0z8AJGwBbAAAwAbA0z8AJGwBbAAAwAbA0z8AJGwBbAAAwAYAAIgOAOt/AJjbf81yGwAAsAHw9A8ACVsAGwAAsAEAACIDwPofAHr502y3AQAAGwAAIC4ArP8BoKffZ7wNAACkbwAAAAEAAHQPAJ//A0Bvv856GwAASN4AAAACAAAQAABAuwDwC4AAkOHnzLcBAIDUDQAAIAAAAAEAAAgAAEAAAADzWfwJIADYAAAAAgAAEAAAgAAAAAQAADCJs0MAOZ5eH/76v3l7eXegIIA/A4TwgS8IQAAABr8QAAEAGPxCALryS4Bg+Jf8dwABABQbyiIA5ucjADD4v8VHAmADAAQ+hdsGgAAAAAQAkPLUbQsAAgAIHbYiAAQAEDpkRQAIAABAAAApT9e2ACAAAAABAKQ8VdsCgAAAAAQAACAAAAABAPzTrJ+n+z0AEAAAgAAAAAQAACAAAAABAAAIAABAAAAAAgAAEADQwtvLu9cNCAAAQAAAAAIAABAA0MRsn6f7/B8EAAAgAIDuT9We/kEAAAACAOj+dO3pHwQAEDZkDX8QAEDYsDX8QQAAAAIA6P7U7ekf5rTcrpe7wwBze3p9MPgBGwCwDTD8AQEAIsDwBwQAiADDHxAAACAAAAABAAAIAABAAAAAAgAAEAAAgAAAAOrw3wKY3BHfAQ9wOvliKBsAAEAAAAACAAAQAACAAAAABAAAIAAAAAEAAAgAAEAAAAD/n68Cnoiv/QWq8/XANgAAgAAAAAQAACAAAAABAAAIAABAAAAAAgAAEAAAgAAAAAQAAHA6nU6ns0PQk+/jzrXlfzPCeeWcwgYAABAAAIAAAAAEAAAgAAAAAQAACAAAQAAAAAIAABAAAIAAAAAEAAAgAAAAAQAAAgAAEAAAgAAAAAQAACAAAAABAAAIAABAAAAAAgAAEAAAgAAAAAQAACAAAAABAAAIAABAAAAAAgAABAAAIAAAAAEAAAgAAEAAAAACAAAQAACAAAAABAAAIAAAAAEAAAgAAEAAAAACAAAQAACAAAAABAAACAAAQAAAAAIAABAAAIAAAAAEAAAgAAAAAQAACAAAQAAAAAIAABAAAIAAAAAEAAAgAAAAAQAACAAAQAAAgAAAAAQAACAAAAABAADM6uwQzOPt5d1BANx7sAEAAAQAACAAAAABAAAIAAAQAACAAAAABAAA0EzkFwE9vT5s9v+d8IUZjh+4dhw/GwAAQAAAAAIAABAAAIAAAAAEQA9b/paq9we49yAAAAAB8Bn+1tzPBZzjpP9cbAAAQACwhq6fVfkMDlyj3pcAAAAEAN2LVYGDa9X7EQAt+GUcPw9wrpP887ABUK4KHNx7vA8BAAAIgOb2WP3MXrB7vH4rUdx73HvcewRAS7NeiNZv4N7jdQsAAEAA9LHXCmi2ot3r9Vr/497j3uPeIwDam+VCtH4D9x6vUwAo8bATfM/Xp8Bx73Hvce8RAGrc6wLce9jR2SE49oSvUKIuPnDvce+xAYh11MVw9AVw1L9vBQfuPe49x1pu18vdYahxUaR8HugCnPdn62fnmvQ++/ARQMEbwJYnqZUb4N6DDUDxE3XNi7Hje8IGwM/Ovce5awMQcTP4zAmstgH3HmwAJq7WThS4DQDuPe49dfgrACeM4wmuFcdTAODEcRzBNeM4CgAAQAAoSBw/cO04fgLAiYTjBq4hx00AOKFwvMC15HgJACeW4wS4phwnAeAEc3wA15bjIwCcaI4L4BpzXASAE87xAFxrjocAcOI5DoBrznHYlP8Y0EonYOL3d7v4wL3HvccGwMUYdkK6AMG16P0KAMJOTBcguCa9z/n5CGCjE7TjWs7FB+497j0CgKCL0cUH7j3uPf34CMAJ7AIE9x6v3waArU/kGarchQfuPe49AoCNTvCKF6OLD9x73HsEACFl7sID9x73HgFAyAXpwgPcexAAhS/INS5MFxzg3oMAaHRhArj38B3+DBAABAAAIAAAAAEAAAgAAEAAAAACAAAQAACAAAAABAAAIAAAAAEAAAgAAEAAAAACAAAQAACAAAAABAAACAAAQAAAAAIAABAAAIAAAAAEAAAgAAAAAQAACAAAQAAAAAIAABAAAIAAAAAEAAAgAAAAAQAACAAAEAAAgAAAAAQAACAAAAABAAAIAABAAAAAAgAAEAAAgAAAAAQAACAAAAABAAAIAABAAAAAAgAAEAAAIAAAAAEAAAgAAEAAAAACAAAQAACAAAAABAAAIAAAAAEAAAgAAEAAAAACAAAQAACAAAAABAAAIAAAQAAAAAIAAGhvuV0vd4cBAGwAAAABAAAIAABAAAAAAgAAEAAAgAAAAAQAAHCMs0NAFU+vDw4C7b29vDsI2AAAAAIAABAAAIAAAAAEAAAgAAAAAQAACAAAQAAAgAAAAAQAACAAAAABAAAIAABAAAAAAgAAEAAAgAAAAAQAACAAAAABAAAIAADgW5bb9XJ3GADABgAAEAAAgAAAAAQAACAAAAABAAAIAABAAAAAAgAAEAAAgAAAAAQAACAAAAABAAAIAABAAACAAAAABAAAIAAAAAEAAAgAAEAAAAACAAAQAACAAAAABAAAIAAAgC0D4PH5Y3EYACDH4/PHYgMAAIkbAIcAAAQAACAAAAABAAAIAABg4gDwp4AAkOHnzLcBAIDUDQAAIAAAAAEAALQNAL8ICAC9/TrrbQAAIHkDAAAIAAAgJQD8HgAA9PT7jLcBAID0DQAAEBoAPgYAgF7+NNttAADABgAAiA0AHwMAQA//NtNtAADABsAWAAC6P/3bAACADQAAIABOPgYAgFn9bYbbAACADYAtAAB0f/q3AQAAGwBbAABIePq3AQAAGwBbAABIePq3AQAAGwBbAABIePq3AQAAGwBbAABIePr/8gZABADAvMP/ywEAAMztywFgCwAAcz792wAAgA2ALQAAJDz9r7IBEAEAMNfwXyUARAAAzDX8VwsAAGAuqwWALQAAzPH0v/oGQAQAQP3hv3oAiAAAqD/8NwkAAKC+TQLAFgAAas/UMdsLBgDDv3AAiAAAqDtDx+xvAAAM/4IBIAIAoN7MHN3eEAAY/oUCQAQAQJ0ZObq/QQAw/AsEgAgAgONn4kh7wwCQPvwPDQARAIDhf5yRfgAAIHH2lRq+t+vl7rQAwOAP2ADYBgBg+IcHgAgAwPDfR+lh6yMBAAz+kA2AbQAAhn94AIgAAAz/bUw1XH0kAIDBHxgAQgAAg38dw4EGgLyZNP0gtQ0AwOAPDAAhAIDBHxwAQgAAgz84AIQAAAZ/cAAIAQAM/uAAEAMAGPrhASAEAEgf/NEBIAYASP9OGV+oIwYADH0BgCAAMPAFAKIAwLAXAIgDAEO+hx8is6AEeMwhdAAAAABJRU5ErkJggg==", sizes: "512x512", type: "image/png", purpose: "any" }
+    ]
+  };
+  const blob = new Blob([JSON.stringify(manifest)], { type: "application/manifest+json" });
+  const link = document.createElement("link");
+  link.rel = "manifest";
+  link.href = URL.createObjectURL(blob);
+  document.head.appendChild(link);
+
+  if ("serviceWorker" in navigator && location.protocol === "https:") {
+    window.addEventListener("load", () => {
+      navigator.serviceWorker.register("./sw.js").catch(()=>{});
+    });
+  }
+  } catch(e) { /* PWA extras are optional — the app must always run */ }
+})();
+
+render();
 </script>
 </body>
 </html>
